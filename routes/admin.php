@@ -36,41 +36,56 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard.alt');
 
-    // Tenants
+    // Tenants — reads for all admin roles; mutations restricted to super_admin.
     Route::prefix('tenants')->name('admin.tenants.')->group(function () {
         Route::get('/',                         [TenantController::class, 'index'])->name('index');
-        Route::get('/create',                   [TenantController::class, 'create'])->name('create');
-        Route::post('/',                        [TenantController::class, 'store'])->name('store');
         Route::get('/{tenant:slug}',            [TenantController::class, 'show'])->name('show');
-        Route::get('/{tenant:slug}/edit',       [TenantController::class, 'edit'])->name('edit');
-        Route::put('/{tenant:slug}',            [TenantController::class, 'update'])->name('update');
-        Route::post('/{tenant:slug}/suspend',   [TenantController::class, 'suspend'])->name('suspend');
-        Route::post('/{tenant:slug}/activate',  [TenantController::class, 'activate'])->name('activate');
 
-        // Impersonation entry point — an admin chooses a user within a tenant.
+        Route::middleware('admin.role:super_admin')->group(function () {
+            Route::get('/create',                   [TenantController::class, 'create'])->name('create');
+            Route::post('/',                        [TenantController::class, 'store'])->name('store');
+            Route::get('/{tenant:slug}/edit',       [TenantController::class, 'edit'])->name('edit');
+            Route::put('/{tenant:slug}',            [TenantController::class, 'update'])->name('update');
+            Route::post('/{tenant:slug}/suspend',   [TenantController::class, 'suspend'])->name('suspend');
+            Route::post('/{tenant:slug}/activate',  [TenantController::class, 'activate'])->name('activate');
+        });
+
+        // Impersonation: super_admin + support roles only (matches Admin::canImpersonate).
         Route::post('/{tenant:slug}/impersonate/{userId}', [ImpersonationController::class, 'start'])
+            ->middleware('admin.role:super_admin,support')
             ->whereNumber('userId')
             ->name('impersonate');
     });
 
-    // Central Settings
-    Route::prefix('settings')->name('admin.settings.')->group(function () {
-        Route::get('/',        [CentralSettingController::class, 'index'])->name('index');
-        Route::put('/{key}',   [CentralSettingController::class, 'update'])->name('update');
-    });
+    // Central Settings — super_admin only (platform-wide configuration).
+    Route::prefix('settings')->name('admin.settings.')
+        ->middleware('admin.role:super_admin')
+        ->group(function () {
+            Route::get('/',        [CentralSettingController::class, 'index'])->name('index');
+            Route::put('/{key}',   [CentralSettingController::class, 'update'])->name('update');
+        });
 
-    // Subscriptions (Phase 5)
+    // Subscriptions — read for all admins, mutation for super_admin only.
     Route::prefix('subscriptions')->name('admin.subscriptions.')->group(function () {
         Route::get('/',             [\App\Http\Controllers\Admin\SubscriptionController::class, 'index'])->name('index');
         Route::get('/{id}',         [\App\Http\Controllers\Admin\SubscriptionController::class, 'show'])->whereNumber('id')->name('show');
-        Route::post('/{id}/cancel', [\App\Http\Controllers\Admin\SubscriptionController::class, 'cancel'])->whereNumber('id')->name('cancel');
-        Route::post('/{id}/resume', [\App\Http\Controllers\Admin\SubscriptionController::class, 'resume'])->whereNumber('id')->name('resume');
+
+        Route::middleware('admin.role:super_admin')->group(function () {
+            Route::post('/{id}/cancel', [\App\Http\Controllers\Admin\SubscriptionController::class, 'cancel'])->whereNumber('id')->name('cancel');
+            Route::post('/{id}/resume', [\App\Http\Controllers\Admin\SubscriptionController::class, 'resume'])->whereNumber('id')->name('resume');
+        });
     });
 
-    // Coupons (Phase 5)
-    Route::resource('coupons', \App\Http\Controllers\Admin\CouponController::class)
-        ->except(['show'])
-        ->names('admin.coupons');
+    // Coupons — listing open to all admins, CRUD restricted to super_admin.
+    Route::get('coupons', [\App\Http\Controllers\Admin\CouponController::class, 'index'])->name('admin.coupons.index');
+
+    Route::middleware('admin.role:super_admin')->group(function () {
+        Route::get('coupons/create',       [\App\Http\Controllers\Admin\CouponController::class, 'create'])->name('admin.coupons.create');
+        Route::post('coupons',             [\App\Http\Controllers\Admin\CouponController::class, 'store'])->name('admin.coupons.store');
+        Route::get('coupons/{coupon}/edit', [\App\Http\Controllers\Admin\CouponController::class, 'edit'])->name('admin.coupons.edit');
+        Route::put('coupons/{coupon}',     [\App\Http\Controllers\Admin\CouponController::class, 'update'])->name('admin.coupons.update');
+        Route::delete('coupons/{coupon}',  [\App\Http\Controllers\Admin\CouponController::class, 'destroy'])->name('admin.coupons.destroy');
+    });
 });
 
 // --- Impersonation stop (accessible from tenant UI while impersonating) ---

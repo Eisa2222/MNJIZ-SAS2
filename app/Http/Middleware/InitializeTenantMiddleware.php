@@ -9,6 +9,7 @@ use App\Tenancy\TenantContext;
 use App\Tenancy\TenantResolver;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -49,8 +50,20 @@ final class InitializeTenantMiddleware
         TenantContext::set($tenant);
 
         $this->applyCachePrefix($tenant);
+        $this->applyUrlDefaults($tenant);
 
         return $next($request);
+    }
+
+    /**
+     * Register {tenant} as a default URL parameter. Without this, calls to
+     * route('tenant.billing.cancel') from inside a tenant request throw
+     * UrlGenerationException "Missing parameter: tenant" — every view would
+     * have to thread the slug manually.
+     */
+    private function applyUrlDefaults(Tenant $tenant): void
+    {
+        URL::defaults(['tenant' => $tenant->slug]);
     }
 
     private function applyCachePrefix(Tenant $tenant): void

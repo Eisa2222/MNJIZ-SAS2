@@ -95,6 +95,7 @@ class Kernel extends HttpKernel
         |----------------------------------------------------------------------
         */
         'admin.guest'       => \App\Http\Middleware\RedirectIfAuthenticatedAdmin::class,
+        'admin.role'        => \App\Http\Middleware\RequireAdminRole::class,
         'impersonating'     => \App\Http\Middleware\ImpersonationContext::class,
     ];
 

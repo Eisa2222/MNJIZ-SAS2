@@ -35,9 +35,14 @@ Route::get('/ping', function () {
 })->name('tenant.ping');
 
 // ---- Tenant Billing Portal (Phase 5) ----
-Route::prefix('billing')->name('tenant.billing.')->group(function () {
-    Route::get('/',              [\App\Http\Controllers\Tenant\BillingController::class, 'index'])->name('index');
-    Route::post('/cancel',       [\App\Http\Controllers\Tenant\BillingController::class, 'cancel'])->name('cancel');
-    Route::post('/resume',       [\App\Http\Controllers\Tenant\BillingController::class, 'resume'])->name('resume');
-    Route::post('/coupon',       [\App\Http\Controllers\Tenant\BillingController::class, 'applyCoupon'])->name('coupon.apply');
-});
+// Requires an authenticated tenant user (web guard). Unauthenticated visits
+// redirect to /employees/login via our custom Authenticate middleware.
+Route::prefix('billing')
+    ->name('tenant.billing.')
+    ->middleware('auth')
+    ->group(function () {
+        Route::get('/',        [\App\Http\Controllers\Tenant\BillingController::class, 'index'])->name('index');
+        Route::post('/cancel', [\App\Http\Controllers\Tenant\BillingController::class, 'cancel'])->name('cancel');
+        Route::post('/resume', [\App\Http\Controllers\Tenant\BillingController::class, 'resume'])->name('resume');
+        Route::post('/coupon', [\App\Http\Controllers\Tenant\BillingController::class, 'applyCoupon'])->name('coupon.apply');
+    });
