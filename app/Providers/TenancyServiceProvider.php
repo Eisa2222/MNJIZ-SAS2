@@ -1,0 +1,205 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Providers;
+
+use App\Tenancy\Events\TenantSwitched;
+use App\Tenancy\TenantContext;
+use App\Tenancy\TenantResolver;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Log\Logger;
+use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
+use Monolog\LogRecord;
+use Spatie\Activitylog\Models\Activity;
+use Spatie\Permission\PermissionRegistrar;
+
+/**
+ * Wires the tenancy layer into Laravel.
+ *
+ * Registers:
+ *   - TenantResolver binding
+ *   - Routes: routes/central.php + routes/tenant.php
+ *   - Monolog processor that stamps tenant_id onto every log entry
+ *   - Activity model hook that stamps tenant_id on Spatie activity_log rows
+ *   - Queue event listeners that preserve tenant context across jobs
+ *   - Eloquent macro: ->whereTenantIs($id) for explicit cross-tenant queries
+ */
+final class TenancyServiceProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        $this->mergeConfigFrom(__DIR__.'/../../config/tenancy.php', 'tenancy');
+
+        $this->app->singleton(TenantResolver::class);
+    }
+
+    public function boot(): void
+    {
+        $this->registerRoutes();
+        $this->registerEloquentMacros();
+        $this->registerLoggingProcessor();
+        $this->registerActivityLogHook();
+        $this->registerQueueListeners();
+        $this->registerSpatieTeamsBridge();
+    }
+
+    /**
+     * Phase 3 — every time the tenant context changes, tell Spatie's
+     * PermissionRegistrar which team_id (tenant_id) to use. Without this,
+     * roles/permissions resolve under the wrong tenant.
+     *
+     * CRITICAL: TenantContext::currentId() would query the tenants table
+     * to resolve the fallback. On a fresh install (before migrate) that
+     * table does not exist, which would kill every artisan command.
+     * The listener + bootstrap block both run inside try/catch so the app
+     * boots even when tenancy tables are missing.
+     */
+    private function registerSpatieTeamsBridge(): void
+    {
+        if (! class_exists(PermissionRegistrar::class)) {
+            return;
+        }
+
+        Event::listen(TenantSwitched::class, function (TenantSwitched $event) {
+            try {
+                $registrar = app(PermissionRegistrar::class);
+                $registrar->setPermissionsTeamId($event->current?->getKey());
+                $registrar->forgetCachedPermissions();
+            } catch (\Throwable $e) {
+                // Swallow — Spatie tables may not exist yet.
+            }
+        });
+    }
+
+    private function registerRoutes(): void
+    {
+        if (file_exists(base_path('routes/central.php'))) {
+            Route::middleware('web')
+                ->group(base_path('routes/central.php'));
+        }
+
+        // Admin panel (Phase 3) — central, never tenant-resolved.
+        if (file_exists(base_path('routes/admin.php'))) {
+            Route::middleware('web')
+                ->prefix('admin')
+                ->group(base_path('routes/admin.php'));
+        }
+
+        if (file_exists(base_path('routes/tenant.php'))) {
+            $prefix    = config('tenancy.identification.path.prefix', 't');
+            $parameter = config('tenancy.identification.path.parameter', 'tenant');
+
+            Route::middleware(['web', 'tenant.init'])
+                ->prefix("{$prefix}/{{$parameter}}")
+                ->group(base_path('routes/tenant.php'));
+        }
+    }
+
+    private function registerEloquentMacros(): void
+    {
+        Builder::macro('whereTenantIs', function (int $tenantId) {
+            /** @var Builder $this */
+            return $this->withoutGlobalScope(\App\Tenancy\Scopes\TenantScope::class)
+                ->where($this->getModel()->getTable().'.tenant_id', $tenantId);
+        });
+    }
+
+    private function registerLoggingProcessor(): void
+    {
+        // Only apply to the default logger; avoids double-tagging on stack channels.
+        try {
+            $logger = Log::getLogger();
+
+            if ($logger instanceof \Monolog\Logger) {
+                $logger->pushProcessor(function ($record) {
+                    // tenants table may not exist yet (fresh install, migrations
+                    // haven't run). Never let log stamping trigger a DB error —
+                    // the log call itself would then recurse into logging again.
+                    $tenantId = null;
+                    try {
+                        $tenantId = TenantContext::currentId();
+                    } catch (\Throwable $e) {
+                        // silent — logging must never crash.
+                    }
+
+                    if ($record instanceof LogRecord) {
+                        $record->extra['tenant_id'] = $tenantId;
+
+                        return $record;
+                    }
+
+                    // Monolog v2 compatibility.
+                    $record['extra']['tenant_id'] = $tenantId;
+
+                    return $record;
+                });
+            }
+        } catch (\Throwable $e) {
+            // Never let logging setup kill the app.
+        }
+    }
+
+    private function registerActivityLogHook(): void
+    {
+        if (! config('tenancy.activity_log.stamp_tenant_id', true)) {
+            return;
+        }
+
+        if (! class_exists(Activity::class)) {
+            return;
+        }
+
+        Activity::creating(function (Activity $activity) {
+            try {
+                if (! array_key_exists('tenant_id', $activity->getAttributes())
+                    || $activity->getAttribute('tenant_id') === null) {
+                    $activity->tenant_id = TenantContext::currentId();
+                }
+            } catch (\Throwable $e) {
+                // tenants table may not exist yet — don't block activity writes.
+            }
+
+            // If we're inside an impersonation session, stamp the impersonating
+            // admin onto every activity so audits can distinguish "the user did
+            // it themselves" vs "an admin did it while impersonating".
+            if ($data = session('impersonation')) {
+                $props = $activity->properties ?? collect();
+
+                if (! is_array($props)) {
+                    $props = $props->toArray();
+                }
+
+                $props['impersonator_admin_id'] = $data['admin_id'] ?? null;
+                $props['impersonation_log_id'] = $data['log_id']   ?? null;
+
+                $activity->properties = $props;
+            }
+        });
+    }
+
+    private function registerQueueListeners(): void
+    {
+        // Pull tenant_id from job payload when a queued job starts executing
+        // on a worker (different process → empty TenantContext). Works with
+        // the TenantAwareJob trait (added in Phase 6).
+        Event::listen(JobProcessing::class, function (JobProcessing $event) {
+            $payload = $event->job->payload();
+            $tenantId = $payload['tenant_id'] ?? null;
+
+            if ($tenantId && $tenant = \App\Models\Tenant::query()->find($tenantId)) {
+                TenantContext::set($tenant);
+            }
+        });
+
+        Event::listen([JobProcessed::class, JobFailed::class], function () {
+            TenantContext::forget();
+        });
+    }
+}

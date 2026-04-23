@@ -1,0 +1,240 @@
+@extends('layouts.layoutMaster')
+
+@section('title', 'إضافة نموذج جديد')
+
+@section('breadcrumb')
+    <li class="breadcrumb-item d-flex align-items-center"><a href="{{ route('settings-templates.index') }}">النماذج</a></li>
+    <li><a href="#">إضافة نموذج جديد</a></li>
+@endsection
+
+@section('vendor-style')
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/quill/typography.scss', 'resources/assets/vendor/libs/quill/katex.scss', 'resources/assets/vendor/libs/quill/editor.scss'])
+@endsection
+
+@section('vendor-script')
+    @vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/quill/katex.js', 'resources/assets/vendor/libs/quill/quill.js'])
+@endsection
+
+@section('page-script')
+    @vite(['resources/assets/js/extended-ui-sweetalert2.js', 'resources/assets/js/form-validation.js', 'resources/assets/js/forms-editors.js'])
+@endsection
+
+@section('toastr')
+    @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
+@endsection
+
+@section('content')
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="card">
+
+        <div
+            class="card-header sticky-element bg-label-secondary d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row">
+            <h5 class="card-title mb-sm-0 me-2">
+                إضافة نموذج جديد
+            </h5>
+            <div class="action-btns">
+                <a href="{{ route('settings-templates.index') }}" class="btn btn-label-primary me-4">
+                    <span class="align-middle">رجوع</span>
+                </a>
+                <button type="submit" form="create-template-form" class="btn btn-primary">
+
+                    حفظ النموذج
+                </button>
+            </div>
+        </div>
+        <form id="create-template-form" class="needs-validation row" novalidate action="{{ route('settings-templates.store') }}" method="POST">
+            @csrf
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 mx-auto">
+
+                        <!-- أزرار المتغيرات فوق النموذج -->
+                        <div class="row mb-4">
+
+                            <div class="mt-5 col-md-4">
+                                <label class="form-label" for="name">اسم النموذج</label>
+                                <input type="text" name="name" id="name" class="form-control"
+                                    placeholder="اسم النموذج" value="{{ old('name') }}" required />
+                                <div class="valid-feedback"></div>
+                                <div class="invalid-feedback">
+                                    اسم النموذج مطلوب
+                                </div>
+                            </div>
+
+                            <div class="my-5 col-md-12">
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="show_header" name="show_header"
+                                        value="1" {{ old('show_header', true) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="show_header">
+                                        إظهار الترويسة
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="show_footer" name="show_footer"
+                                        value="1" {{ old('show_footer', true) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="show_footer">
+                                        إظهار التذييل
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="show_qr_code" name="show_qr_code"
+                                        value="1" {{ old('show_qr_code', true) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="show_qr_code">
+                                        إظهار رمز الاستجابة السريعة
+                                    </label>
+                                </div>
+
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="show_seal" name="show_seal"
+                                        value="1" {{ old('show_seal', true) ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="show_seal">
+                                        إظهار الختم
+                                    </label>
+                                </div>
+
+                            </div>
+
+                            <div class="mb-5 col-12">
+                                <label class="form-label">المتغيرات</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach ($variables as $variable)
+                                        <button type="button" class="btn btn-outline-secondary variable-button"
+                                            data-placeholder="{{ $variable->placeholder }}">
+                                            {{ $variable->name }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <div id="header-section" class="mb-5 col-12"
+                                style="{{ old('show_header', true) ? '' : 'display: none;' }}">
+
+                                <img src="{{ asset('logo.svg') }}" alt="Header Image"
+                                    style="height: auto; max-width: 200px;">
+
+                                <div id="code-section" class="float-end w-2"
+                                    style="{{ old('show_qr_code', true) ? '' : 'display: none;' }}">
+                                    {!! $qrCode !!}
+                                </div>
+                            </div>
+                            <div class="mb-5 col-12">
+                                <label class="form-label" for="content">النموذج</label>
+                                <textarea name="content" id="editor" class="form-control">{{ old('content') }}</textarea>
+                            </div>
+
+                            <div id="seal-section" class="mb-5 col-12 "
+                                style="{{ old('show_seal', true) ? '' : 'display: none;' }}">
+
+                                <img src="{{ asset('sig.png') }}" alt="Signature Image"
+                                    style="max-width: 150px; float: left; margin-left: 65px;margin-bottom: 50px;}">
+                            </div>
+
+                            <div id="footer-section" class="mb-5 col-12 "
+                                style="{{ old('show_footer', true) ? '' : 'display: none;' }}">
+
+                                <img class="w-100" src="{{ asset('footer.svg') }}" alt="Footer Image">
+                            </div>
+                        </div>
+                        <hr>
+
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- تضمين CKEditor -->
+    <script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
+
+    <script>
+        CKEDITOR.replace('editor', {
+            height: 600, // زيادة طول المحرر إلى 600 بكسل (يمكنك تعديل القيمة حسب الحاجة)
+            allowedContent: true, // السماح بجميع الأنماط المضمنة
+            on: {
+                instanceReady: function(evt) {
+                    var editor = evt.editor;
+                    // الحصول على التاريخ الحالي باللغة العربية
+                    var currentDate = new Date().toLocaleDateString('ar-EG', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+
+                }
+            }
+        });
+
+        // إضافة وظيفة لإدراج المتغيرات في CKEditor عند النقر على الأزرار
+        document.querySelectorAll('.variable-button').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var placeholder = this.getAttribute('data-placeholder');
+                if (placeholder) {
+                    // إدراج المتغير في الموضع الحالي للنص في CKEditor
+                    CKEDITOR.instances['editor'].insertText(placeholder);
+                }
+            });
+        });
+
+        // وظائف لإظهار وإخفاء أقسام الترويسة والتذييل بناءً على حالة الخانات
+        document.getElementById('show_header').addEventListener('change', function() {
+            var headerSection = document.getElementById('header-section');
+            if (this.checked) {
+                headerSection.style.display = 'block';
+            } else {
+                headerSection.style.display = 'none';
+            }
+        });
+
+        document.getElementById('show_footer').addEventListener('change', function() {
+            var footerSection = document.getElementById('footer-section');
+            if (this.checked) {
+                footerSection.style.display = 'block';
+            } else {
+                footerSection.style.display = 'none';
+            }
+        });
+
+
+        document.getElementById('show_qr_code').addEventListener('change', function() {
+            var QRSection = document.getElementById('code-section');
+            if (this.checked) {
+                QRSection.style.display = 'block';
+            } else {
+                QRSection.style.display = 'none';
+            }
+        });
+
+
+        document.getElementById('show_seal').addEventListener('change', function() {
+            var QRSection = document.getElementById('seal-section');
+            if (this.checked) {
+                QRSection.style.display = 'block';
+            } else {
+                QRSection.style.display = 'none';
+            }
+        });
+
+        // إذا كنت ترغب في إضافة إظهار/إخفاء رمز الاستجابة السريعة وشكل العرض بناءً على الخيارات، يمكنك إضافة وظائف مماثلة هنا
+    </script>
+
+    <!-- إضافة CSS مخصص لتحسين مظهر الأزرار -->
+    <style>
+        .variable-button {
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .variable-button:hover {
+            background-color: #e2e6ea;
+        }
+    </style>
+@endsection

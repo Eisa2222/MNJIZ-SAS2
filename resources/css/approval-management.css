@@ -1,0 +1,353 @@
+/**
+ * ========================================================================
+ * Approval Management Styles
+ * ========================================================================
+ * Styles for the approval flow management interface
+ */
+
+/* ========================================================================
+   Card Components
+   ======================================================================== */
+
+.approval-card {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.approval-card h4 {
+    color: #111827;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.approval-card p {
+    color: #6b7280;
+    margin-bottom: 0;
+}
+
+/* ========================================================================
+   Flow Sections
+   ======================================================================== */
+
+.flow-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.flow-title {
+    color: #111827;
+    font-size: 1.125rem;
+    font-weight: 600;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    position: relative;
+}
+
+.flow-title::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    right: 0;
+    width: 50px;
+    height: 2px;
+    background: var(--bs-primary);
+}
+
+.flow-title i {
+    color: var(--bs-primary);
+}
+
+/* ========================================================================
+   Approval Tables
+   ======================================================================== */
+
+.approval-table {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    background: white;
+}
+
+.approval-table thead th {
+    background: white;
+    color: #111827;
+    font-weight: 600;
+    padding: 1rem;
+    border-bottom: 2px solid #e5e7eb;
+    text-align: center;
+    font-size: 0.875rem;
+}
+
+.approval-table tbody td {
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+    background: white;
+    text-align: center;
+}
+
+.approval-table tbody tr:hover td {
+    background: #f9fafb;
+}
+
+.approval-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ========================================================================
+   Level Cards
+   ======================================================================== */
+
+.approval-level-card {
+    position: relative;
+    padding: 1rem;
+    border-radius: 6px;
+    background: #fafafa;
+    border: 1px solid #e5e7eb;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.approval-level-card:hover {
+    border-color: var(--bs-primary);
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.approval-level-card:hover .delete-icon {
+    display: block;
+}
+
+/* ========================================================================
+   Toggle and Form Components
+   ======================================================================== */
+
+.toggle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-check-input:checked {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.employee-info small {
+    color: #6b7280;
+    font-size: 0.75rem;
+}
+
+.employee-info strong {
+    color: #111827;
+    font-size: 0.875rem;
+}
+
+.form-label {
+    color: #111827;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-select {
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    padding: 0.625rem 0.75rem;
+    color: #111827;
+    background: white;
+}
+
+.form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 3px rgba(var(--bs-primary-rgb), 0.1);
+    outline: none;
+}
+
+/* ========================================================================
+   Buttons
+   ======================================================================== */
+
+.add-level-btn {
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    border: 1px solid var(--bs-primary);
+    color: var(--bs-primary);
+    background: white;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.add-level-btn:hover {
+    background: var(--bs-primary);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: white;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 0.625rem 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-light {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 0.625rem 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.btn-light:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.btn-close-white {
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+}
+
+.btn-close-white:hover {
+    opacity: 1;
+}
+
+/* ========================================================================
+   Icons
+   ======================================================================== */
+
+.delete-icon {
+    position: absolute;
+    bottom: 0.5rem !important;
+    left: 0.5rem !important;
+    display: none;
+    cursor: pointer;
+    color: #dc3545;
+    font-size: 1rem;
+}
+
+/* Page Header Icon */
+.approval-card .text-primary i {
+    color: var(--bs-primary) !important;
+    opacity: 1 !important;
+}
+
+/* ========================================================================
+   Alerts and States
+   ======================================================================== */
+
+.alert-info {
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    color: #1e40af;
+}
+
+.alert-info .fas {
+    color: #3b82f6;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6b7280;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #d1d5db;
+}
+
+.empty-state h6 {
+    color: #374151;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+/* ========================================================================
+   Responsive Design
+   ======================================================================== */
+
+@media (max-width: 768px) {
+    .approval-card {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .flow-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .approval-table thead th,
+    .approval-table tbody td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .approval-level-card {
+        min-height: 85px;
+        padding: 0.75rem;
+    }
+
+    .flow-title {
+        font-size: 1rem;
+    }
+
+    .add-level-btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .approval-card .d-flex {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .approval-card .text-primary {
+        margin-top: 1rem;
+    }
+
+    .flow-section .d-flex {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch !important;
+    }
+
+    .add-level-btn {
+        align-self: center;
+        width: fit-content;
+    }
+}

@@ -1,0 +1,1 @@
+$(document).ready(function(){if(window.location.hash){var t=window.location.hash;$('.nav-tabs a[href="'+t+'"]').tab("show")}$(".nav-tabs a").on("shown.bs.tab",function(n){var a=n.target.hash;a&&history.replaceState(null,null,a)})});

@@ -1,0 +1,77 @@
+/*
+ * ===================================================================
+ * ===[ General PDF Stylesheet for the Application ]===
+ * ===================================================================
+ * This file contains all the base styles for PDF documents generated
+ * by Mpdf to ensure a consistent and professional look.
+ */
+
+@page {
+    margin-top: 4.5cm;
+    margin-bottom: 3cm;
+    margin-left: 1.5cm;
+    margin-right: 1.5cm;
+    header: pageHeader;
+    footer: pageFooter;
+}
+
+body {
+    font-family: 'almarai', sans-serif;
+    font-size: 13px;
+    line-height: 1.8;
+    direction: rtl;
+    text-align: right;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'almarai', sans-serif;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    text-align: justify;
+    text-justify: kashida;
+}
+
+ul, ol {
+    padding-right: 25px;
+}
+
+li {
+    margin-bottom: 8px;
+}
+
+strong, b {
+    font-weight: bold;
+}
+
+blockquote {
+    padding: 10px 20px;
+    margin: 0 0 20px;
+    font-size: 13px;
+    border-right: 4px solid #bdc3c7;
+    background-color: #ecf0f1;
+    color: #34495e;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+th, td {
+    border: 1px solid #bdc3c7;
+    padding: 8px;
+    text-align: right;
+}
+
+th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}

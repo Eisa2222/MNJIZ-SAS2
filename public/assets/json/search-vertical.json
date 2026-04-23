@@ -1,0 +1,331 @@
+{
+    "pages": [
+        {
+            "name": "الرئيسية",
+            "icon": "ti-smart-home",
+            "url": "dashboard"
+        },
+        {
+            "name": "تقرير العملاء",
+            "icon": "ti-users-group",
+            "url": "reports/customers"
+        },
+        {
+            "name": "تقرير العروض",
+            "icon": "ti-tag",
+            "url": "reports/offers"
+        },
+        {
+            "name": "تقرير العقود",
+            "icon": "ti-file-text",
+            "url": "reports/contracts"
+        },
+        {
+            "name": "تقرير الوكالات",
+            "icon": "ti-user-plus",
+            "url": "reports/powerOfAttorney"
+        },
+        {
+            "name": "تقرير الخصوم",
+            "icon": "ti-gavel",
+            "url": "reports/opponents"
+        },
+        {
+            "name": "تقرير المشاريع",
+            "icon": "ti-briefcase",
+            "url": "reports/projects"
+        },
+        {
+            "name": "تقرير الدعاوى",
+            "icon": "ti-scale",
+            "url": "reports/lawsuits"
+        },
+        {
+            "name": "تقرير الجلسات",
+            "icon": "ti-calendar",
+            "url": "reports/sessions"
+        },
+        {
+            "name": "تقرير الموظفين",
+            "icon": "ti-users",
+            "url": "reports/employees"
+        },
+        {
+            "name": "إعدادات النظام",
+            "icon": "ti-settings",
+            "url": "settings"
+        },
+        {
+            "name": "النماذج",
+            "icon": "",
+            "url": "settings-templates"
+        },
+        {
+            "name": "اقسام المشاريع و القضايا",
+            "icon": "",
+            "url": "settings-departments-contracts"
+        },
+        {
+            "name": "حالات العقود",
+            "icon": "",
+            "url": "settings-contract-statuses"
+        },
+        {
+            "name": "المنتجات",
+            "icon": "",
+            "url": "settings-products"
+        },
+        {
+            "name": "مراحل عروض الاسعار",
+            "icon": "",
+            "url": "settings-stage-priceOffer"
+        },
+        {
+            "name": "حالات العميل",
+            "icon": "",
+            "url": "settings-client-status"
+        },
+        {
+            "name": "قنوات التسويق",
+            "icon": "",
+            "url": "settings-marketing-channel"
+        },
+        {
+            "name": "القطاعات",
+            "icon": "",
+            "url": "settings-sector"
+        },
+        {
+            "name": "المدن",
+            "icon": "",
+            "url": "settings-region"
+        },
+        {
+            "name": "قائمة الدول",
+            "icon": "",
+            "url": "settings-country"
+        },
+        {
+            "name": "مواقع التواصل",
+            "icon": "",
+            "url": "settings-social"
+        },
+        {
+            "name": "حالات الموارد البشرية",
+            "icon": "",
+            "url": "settings-hr-statuses"
+        },
+        {
+            "name": "تصنيف الموارد البشرية",
+            "icon": "",
+            "url": "settings-hr_classification"
+        },
+        {
+            "name": "المحكمة",
+            "icon": "",
+            "url": "settings-main-court"
+        },
+        {
+            "name": "درجة الجهة",
+            "icon": "",
+            "url": "settings-entity_rank"
+        },
+        {
+            "name": "التصنيفات الرئيسية",
+            "icon": "",
+            "url": "settings-category"
+        },
+        {
+            "name": "التصنيفات الفرعية",
+            "icon": "",
+            "url": "settings-subcategory"
+        },
+        {
+            "name": "انواع الدعاوى",
+            "icon": "",
+            "url": "settings-lawsuits-types"
+        },
+        {
+            "name": "انواع الجلسات",
+            "icon": "",
+            "url": "settings-session-type"
+        },
+        {
+            "name": "انواع الاحكام",
+            "icon": "",
+            "url": "settings-rule-type"
+        },
+        {
+            "name": "الصلاحيات الوظيفية",
+            "icon": "ti-lock",
+            "url": "roles"
+        },
+        {
+            "name": "إدارة الإعتمادات",
+            "icon": "ti-check",
+            "url": "approvals"
+        },
+        {
+            "name": "سجل النشاطات",
+            "icon": "ti-activity",
+            "url": "activity_logs"
+        },
+
+        {
+            "name": "العملاء",
+            "icon": "ti-users-group",
+            "url": "customers"
+        },
+        {
+            "name": "العروض",
+            "icon": "ti-tag",
+            "url": "offers"
+        },
+        {
+            "name": "العقود",
+            "icon": "ti-file-text",
+            "url": "contracts"
+        },
+        {
+            "name": "الخصوم",
+            "icon": "ti-gavel",
+            "url": "opponents"
+        },
+
+        {
+            "name": "المشاريع",
+            "icon": "ti-briefcase",
+            "url": "projects"
+        },
+
+        {
+            "name": "الوكالات",
+            "icon": "ti-user-plus",
+            "url": "power-attorney"
+        },
+        {
+            "name": "الدعاوى",
+            "icon": "ti-scale",
+            "url": "lawsuits"
+        },
+
+        {
+            "name": "إدارة الموظفين",
+            "icon": "ti-users",
+            "url": "employees"
+        },
+        {
+            "name": "الحضور والإنصراف",
+            "icon": "ti-clock",
+            "url": "pages/misc-under-maintenance"
+        },
+        {
+            "name": "الاجازات",
+            "icon": "ti-calendar-plus",
+            "url": "pages/misc-under-maintenance"
+        },
+        {
+            "name": "إدارة المرتبات",
+            "icon": "ti-wallet",
+            "url": "pages/misc-under-maintenance"
+        },
+        {
+            "name": "إدارة الانتهاكات والعقوبات",
+            "icon": "ti-alert-circle",
+            "url": "pages/misc-under-maintenance"
+        },
+        {
+            "name": "تقييم الاداء",
+            "icon": "ti-chart-line",
+            "url": "pages/misc-under-maintenance"
+        },
+        {
+            "name": "إدارة الملفات",
+            "icon": "ti-file",
+            "url": "onedrive"
+        },
+
+        {
+            "name": "ارشيف العملاء",
+            "icon": "",
+            "url": "customers/trashed"
+        },
+        {
+            "name": "ارشيف العروض",
+            "icon": "",
+            "url": "offers/trashed"
+        },
+        {
+            "name": "العقود",
+            "icon": "",
+            "url": "contracts/trashed"
+        },
+        {
+            "name": "ارشيف الدعاوى",
+            "icon": "",
+            "url": "lawsuits/trashed"
+        },
+        {
+            "name": "ارشيف الجلسات",
+            "icon": "",
+            "url": "sessions/trashed"
+        },
+        {
+            "name": "ارشيف المشاريع",
+            "icon": "",
+            "url": "projects/trashed"
+        },
+        {
+            "name": "ارشيف المهام",
+            "icon": "",
+            "url": "tasks/trashed"
+        },
+        {
+            "name": "ارشيف الموظفين",
+            "icon": "",
+            "url": "employees/trashed"
+        },
+        {
+            "name": "إدارة المهام",
+            "icon": "ti-clipboard-check",
+            "url": "tasks"
+        },
+        {
+            "name": "المساعد الذكي",
+            "icon": "ti-cpu",
+            "url": "ai-chat"
+        },
+        {
+            "name": "التقويم",
+            "icon": "ti-calendar",
+            "url": "calendar"
+        },
+        {
+            "name": "البريد الإلكتروني",
+            "icon": "ti-mail",
+            "url": "emails"
+        },
+        {
+            "name": "التفاعل الجماعي",
+            "icon": "ti-messages",
+            "url": "chat"
+        },
+        {
+            "name": "الدردشة",
+            "icon": "ti-messages",
+            "url": "chat"
+        },
+        {
+            "name": "إدارة الاجتماعات",
+            "icon": "ti-video",
+            "url": "teams"
+        },
+        {
+            "name": "الدعم الفني",
+            "icon": "ti-headset",
+            "url": "support/show/user"
+        }
+    ]
+
+
+}

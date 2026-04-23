@@ -1,0 +1,543 @@
+<?php
+
+namespace App\Services;
+
+use App\Mail\EventCreatedNotification;
+use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Microsoft\Graph\Model\Event;
+use Microsoft\Graph\Model\TodoTask;
+use Microsoft\Graph\Model\TodoTaskList;
+use Microsoft\Graph\Model\User;
+
+class TaskService extends MicrosoftGraphBaseService
+{
+    protected $graphClient;
+
+    protected $accessToken;
+
+
+
+
+    public function __construct(MicrosoftGraphBaseService $graphService)
+    {
+        parent::__construct();
+
+
+        // Obtain app access token
+        $this->accessToken = $graphService->getAppAccessToken();
+
+        if (! $this->accessToken) {
+            Log::error('Failed to obtain application access token.');
+            // يمكنك رمي استثناء أو التعامل مع الحالة بناءً على متطلباتك
+        }
+
+        // Set access token in Graph
+        $this->setGraphAccessToken($this->accessToken);
+
+        // Initialize Guzzle Client for batch requests
+        $this->graphClient = new Client([
+            'base_uri' => 'https://graph.microsoft.com/v1.0/',
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->accessToken,
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ],
+        ]);
+    }
+
+    /**
+     * Get or create a Todo list for a user and return its ID
+     *
+     * @param  string  $userId
+     * @param  string  $listName
+     * @return string|array Returns the list ID or an error array
+     */
+    public function getOrCreateTodoListId($userId, $listName)
+    {
+        if (! $this->accessToken) {
+            return ['error' => 'Access token is missing.'];
+        }
+
+        try {
+            // Fetch user's Todo lists
+            $lists = $this->graph->createRequest('GET', "/users/{$userId}/todo/lists")
+                ->setReturnType(TodoTaskList::class)
+                ->execute();
+
+            Log::info("Fetched todo lists for user {$userId}: ", ['lists' => $lists]);
+
+            // Search for the list with the specified name
+            foreach ($lists as $list) {
+                if ($list->getDisplayName() === $listName) {
+                    return $list->getId();
+                }
+            }
+
+            // If list not found, create it
+            $newList = $this->createTodoList($userId, $listName);
+            if (is_array($newList) && isset($newList['error'])) {
+                return $newList; // Return error if occurred during creation
+            }
+
+            return $newList->getId();
+        } catch (\Exception $e) {
+            Log::error("Error getting or creating Todo list '{$listName}' for user {$userId}: " . $e->getMessage());
+
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Create a new Todo list for a user
+     *
+     * @param  string  $userId
+     * @param  string  $listName
+     * @return TodoTaskList|array
+     */
+    public function createTodoList($userId, $listName)
+    {
+        if (! $this->accessToken) {
+            return ['error' => 'Access token is missing.'];
+        }
+
+        try {
+            $list = [
+                'displayName' => $listName,
+            ];
+
+            $response = $this->graph->createRequest('POST', "/users/{$userId}/todo/lists")
+                ->attachBody($list)
+                ->setReturnType(TodoTaskList::class)
+                ->execute();
+
+            Log::info("Todo list '{$listName}' created successfully for user {$userId}: " . json_encode($response));
+
+            return $response;
+        } catch (\Exception $e) {
+            Log::error("Error creating Todo list '{$listName}' for user {$userId}: " . $e->getMessage());
+
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Add a task to a user's Todo list
+     *
+     * @param  string  $userId
+     * @param  string  $listName
+     * @return TodoTask|array
+     */
+    public function addTaskToUser($userId, array $taskData, $listName = 'البرهان')
+    {
+        if (! $this->accessToken) {
+            return ['error' => 'Access token is missing.'];
+        }
+
+        try {
+            // Get or create the Todo list ID
+            $todoListId = $this->getOrCreateTodoListId($userId, $listName);
+            if (is_array($todoListId) && isset($todoListId['error'])) {
+                return $todoListId; // Return error if occurred
+            }
+
+            // Prepare task data
+            $task = [
+                'title' => $taskData['subject'] ?? 'مهمة جديدة',
+                'dueDateTime' => [
+                    'dateTime' => $taskData['endDateTime'] ?? null,
+                    'timeZone' => 'Asia/Riyadh',
+                ],
+                'body' => [
+                    'content' => $taskData['body'] ?? '',
+                    'contentType' => 'text',
+                ],
+                // Additional fields as needed
+            ];
+
+            // Create the task
+            $response = $this->graph->createRequest('POST', "/users/{$userId}/todo/lists/{$todoListId}/tasks")
+                ->attachBody($task)
+                ->setReturnType(TodoTask::class)
+                ->execute();
+
+            // Log the response
+            Log::info("Task added successfully to list '{$listName}' for user {$userId}: " . json_encode($response));
+
+            // return $response;
+            return [
+                'list_id' => $todoListId,
+                'task' => $response,
+            ];
+        } catch (\Exception $e) {
+            Log::error("Error adding task to user {$userId}: " . $e->getMessage());
+
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+
+
+    /**
+     * Add a calendar event to a user's calendar
+     *
+     * @param  string  $userId
+     * @return Event|array
+     */
+    public function addCalendarEventToUser($userId, array $eventData, $userName = "")
+    {
+        if (! $this->accessToken) {
+            Log::error('Access token is missing.');
+
+            return ['error' => 'Access token is missing.'];
+        }
+
+        // تحليل رمز الوصول للتحقق من الأذونات
+        $tokenParts = explode('.', $this->accessToken);
+        if (count($tokenParts) !== 3) {
+            Log::error('Invalid access token format.');
+
+            return ['error' => 'Invalid access token format.'];
+        }
+
+        $payload = json_decode(base64_decode($tokenParts[1]), true);
+        $scopes = explode(' ', $payload['scp'] ?? '');
+
+        Log::info('Access Token Scopes:', ['scopes' => $scopes]);
+
+        // التأكد من وجود الأذونات المطلوبة
+        $requiredScopes = ['Calendars.ReadWrite', 'OnlineMeetings.ReadWrite'];
+        // $missingScopes = array_diff($requiredScopes, $scopes);
+
+        // if (!empty($missingScopes)) {
+        //     Log::error('Missing required scopes in access token:', ['missing_scopes' => $missingScopes]);
+        //     return ['error' => 'Missing required scopes: ' . implode(', ', $missingScopes)];
+        // }
+
+        try {
+
+            // // إعداد قائمة المدعوين مع تعيين responseRequested إلى false
+            // $attendees = [];
+            // if (isset($eventData['attendees']) && is_array($eventData['attendees'])) {
+            //     foreach ($eventData['attendees'] as $attendeeEmail) {
+            //         $attendees[] = [
+            //             'emailAddress' => [
+            //                 'address' => $attendeeEmail,
+            //                 'name' => '', // يمكنك تضمين اسم المستخدم إذا كان متاحًا
+            //             ],
+            //             'type' => 'optional',
+            //             // 'responseRequested' => false, // تعيين إلى false لإزالة طلبات الاستجابة
+            //         ];
+            //     }
+            // }
+
+            // إعداد بيانات الحدث كما في السابق...
+            $event = [
+                'subject' => $eventData['subject'],
+                'body' => [
+                    'contentType' => 'HTML',
+                    'content' => $eventData['body'] ?? '',
+                ],
+                'start' => [
+                    'dateTime' => $eventData['startDateTime'],
+                    'timeZone' => 'Asia/Riyadh',
+                ],
+                'end' => [
+                    'dateTime' => $eventData['endDateTime'],
+                    'timeZone' => 'Asia/Riyadh',
+                ],
+                'location' => [
+                    'displayName' => 'غير محدد',
+                ],
+                'isReminderOn' => true, // إضافة خاصية التنبيه
+                'reminderMinutesBeforeStart' =>  15,
+
+                // 'attendees' => $attendees,
+
+                // إضافة المدعوين
+                // 'attendees' => [
+                //     [
+                //         'emailAddress' => [
+                //             'address' => $eventData['userEmail'], // بريد المستخدم
+                //             'name' => $eventData['userName'] ?? '', // اسم المستخدم (اختياري)
+                //         ],
+                //         'type' => 'required',
+                //     ],
+                // ], // إضافة وقت التنبيه
+
+            ];
+
+            // إضافة المدعوين إذا تم توفيرهم
+            // if (isset($eventData['attendees']) && is_array($eventData['attendees'])) {
+            //     $event['attendees'] = [];
+            //     foreach ($eventData['attendees'] as $email) {
+            //         $event['attendees'][] = [
+            //             'emailAddress' => [
+            //                 'address' => $email,
+            //                 'name' => '',
+            //             ],
+            //             'type' => 'required',
+            //         ];
+            //     }
+            // }
+
+            // إنشاء الحدث
+            $response = $this->graph->createRequest('POST', "/users/{$userId}/events")
+                ->attachBody($event)
+                ->setReturnType(Event::class)
+                ->execute();
+
+
+            // تسجيل الاستجابة
+            Log::info("Event created successfully for user {$userId}: " . json_encode($response));
+
+
+            return $response;
+        } catch (\Microsoft\Graph\Exception\GraphException $e) {
+            Log::error("GraphException creating event for user {$userId}: " . $e->getMessage());
+
+            return ['error' => $e->getMessage()];
+        } catch (\Exception $e) {
+            Log::error("Error creating event for user {$userId}: " . $e->getMessage());
+
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+
+  
+
+
+    /**
+     * Send a batch request to Microsoft Graph API
+     *
+     * @return array
+     */
+    protected function sendBatchRequest(array $headers, array $batchRequests)
+    {
+        log::info('start sendBatchRequest');
+
+        // Prepare batch request body
+        $batchBody = [
+            'requests' => $batchRequests,
+        ];
+
+        try {
+            $response = $this->graphClient->post('$batch', [
+                'headers' => $headers,
+                'json' => $batchBody,
+            ]);
+
+            $responseBody = json_decode($response->getBody()->getContents(), true);
+
+            return $responseBody['responses'] ?? [];
+        } catch (\Exception $e) {
+            Log::error('Error sending batch request: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * حذف مهمة في Microsoft Graph
+     *
+     * @param  string  $userId
+     * @param  string  $graphTaskId
+     * @return bool
+     */
+    public function deleteTaskInGraph($userId, $listId, $graphTaskId)
+    {
+        Log::info('Attempting to delete task in Microsoft Graph', [
+            'user_id' => $userId,
+            'list_id' => $listId,
+            'task_id' => $graphTaskId,
+        ]);
+
+        if (! $this->accessToken) {
+            Log::error('Access token is missing.');
+
+            return false;
+        }
+
+        // تأكد من تعيين الـ access token في كائن graph
+        $this->graph->setAccessToken($this->accessToken);
+
+        try {
+            $response = $this->graph->createRequest('DELETE', "/users/{$userId}/todo/lists/{$listId}/tasks/{$graphTaskId}")
+                ->execute();
+
+            Log::info("Task deleted successfully in Microsoft Graph for user {$userId}.", [
+                'task_id' => $graphTaskId,
+                'response_status' => $response->getStatus(),
+            ]);
+
+            return true;
+        } catch (\Microsoft\Graph\Exception\GraphException $e) {
+            Log::error("Graph API error deleting task for user {$userId}.", [
+                'task_id' => $graphTaskId,
+                'error_code' => $e->getCode(),
+                'error_message' => $e->getMessage(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error("General error deleting task for user {$userId}.", [
+                'task_id' => $graphTaskId,
+                'error_code' => $e->getCode(),
+                'error_message' => $e->getMessage(),
+            ]);
+        }
+
+        return false;
+    }
+
+    /**
+     * حذف حدث في Microsoft Graph
+     *
+     * @param  string  $userId
+     * @param  string  $graphEventId
+     * @return bool
+     */
+    public function deleteCalendarEventInGraph($userId, $graphEventId)
+    {
+        Log::info('Attempting to delete calendar event in Microsoft Graph', [
+            'user_id' => $userId,
+            'event_id' => $graphEventId,
+        ]);
+
+        if (! $this->accessToken) {
+            Log::error('Access token is missing.');
+
+            return false;
+        }
+
+        try {
+            $response = $this->graph->createRequest('DELETE', "/users/{$userId}/events/{$graphEventId}")
+                ->execute();
+
+            Log::info("Event deleted successfully in Microsoft Graph for user {$userId}.", [
+                'event_id' => $graphEventId,
+                'response_status' => $response->getStatus(),
+            ]);
+
+            return true;
+        } catch (\Microsoft\Graph\Exception\GraphException $e) {
+            Log::error("Graph API error deleting event for user {$userId}.", [
+                'event_id' => $graphEventId,
+                'error_code' => $e->getCode(),
+                'error_message' => $e->getMessage(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error("General error deleting event for user {$userId}.", [
+                'event_id' => $graphEventId,
+                'error_code' => $e->getCode(),
+                'error_message' => $e->getMessage(),
+            ]);
+        }
+
+        return false;
+    }
+
+    /**
+     * Update a task in a user's Todo list
+     *
+     * @param  string  $userId
+     * @param  string  $graphTaskId
+     * @return TodoTask|array
+     */
+    public function updateTaskForUser($userId, $graphTaskId, array $taskData)
+    {
+        if (! $this->accessToken) {
+            return ['error' => 'Access token is missing.'];
+        }
+
+        try {
+            // إعداد بيانات المهمة المحدثة
+            $updatedTask = [
+                'subject' => $taskData['subject'] ?? 'مهمة محدثة',
+                'dueDateTime' => [
+                    'dateTime' => $taskData['endDateTime'] ?? null,
+                    'timeZone' => 'Asia/Riyadh',
+                ],
+                'body' => [
+                    'content' => $taskData['body'] ?? '',
+                    'contentType' => 'text',
+                ],
+                // إضافة أي حقول أخرى تحتاج إلى تحديثها
+            ];
+
+            // إرسال طلب تحديث المهمة
+            $response = $this->graph->createRequest('PATCH', "/users/{$userId}/todo/lists/{$taskData['list_id']}/tasks/{$graphTaskId}")
+                ->attachBody($updatedTask)
+                ->setReturnType(TodoTask::class)
+                ->execute();
+
+            Log::info("Task updated successfully in Microsoft Graph for user {$userId}: " . json_encode($response));
+
+            return $response;
+        } catch (\Microsoft\Graph\Exception\GraphException $e) {
+            Log::error("GraphException updating task for user {$userId}: " . $e->getMessage());
+
+            return ['error' => $e->getMessage()];
+        } catch (\Exception $e) {
+            Log::error("Error updating task for user {$userId}: " . $e->getMessage());
+
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Update a calendar event in a user's calendar
+     *
+     * @param  string  $userId
+     * @param  string  $graphEventId
+     * @return Event|array
+     */
+    public function updateCalendarEventForUser($userId, $graphEventId, array $eventData)
+    {
+        if (! $this->accessToken) {
+            Log::error('Access token is missing.');
+
+            return ['error' => 'Access token is missing.'];
+        }
+
+        try {
+            // إعداد بيانات الحدث المحدث
+            $updatedEvent = [
+                'subject' => $eventData['subject'],
+                'body' => [
+                    'contentType' => 'HTML',
+                    'content' => $eventData['body'] ?? '',
+                ],
+                // 'start' => [
+                //     'dateTime' => $eventData['startDateTime'],
+                //     'timeZone' => 'Asia/Riyadh',
+                // ],
+                'end' => [
+                    'dateTime' => $eventData['endDateTime'],
+                    'timeZone' => 'Asia/Riyadh',
+                ],
+                'location' => [
+                    'displayName' => $eventData['location'] ?? 'غير محدد',
+                ],
+                // إضافة أي حقول أخرى تحتاج إلى تحديثها
+            ];
+
+            // إرسال طلب تحديث الحدث
+            $response = $this->graph->createRequest('PATCH', "/users/{$userId}/events/{$graphEventId}")
+                ->attachBody($updatedEvent)
+                ->setReturnType(Event::class)
+                ->execute();
+
+            Log::info("Event updated successfully in Microsoft Graph for user {$userId}: " . json_encode($response));
+
+            return $response;
+        } catch (\Microsoft\Graph\Exception\GraphException $e) {
+            Log::error("GraphException updating event for user {$userId}: " . $e->getMessage());
+
+            return ['error' => $e->getMessage()];
+        } catch (\Exception $e) {
+            Log::error("Error updating event for user {$userId}: " . $e->getMessage());
+
+            return ['error' => $e->getMessage()];
+        }
+    }
+}

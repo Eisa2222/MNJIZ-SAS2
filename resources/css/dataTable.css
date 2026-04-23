@@ -1,0 +1,138 @@
+/* ترتيب العناصر في الصف العلوي */
+.dt-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.dt-toolbar-left,
+.dt-toolbar-right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+/* تنسيق الأزرار */
+.btn-export {
+    background-color: white !important;
+    color: black !important;
+    border: none !important;
+}
+
+/* ضبط المسافات بين الأزرار */
+.btn-export,
+.btn-add {
+    margin: 5px;
+}
+
+.btn-add {
+    margin-right: 5px !important;
+}
+
+/* تغيير لون شاشة التحميل في DataTable */
+.dataTables_processing {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.table {
+    --bs-table-striped-bg: #fffdff !important;
+}
+
+label {
+    display: inline-block;
+    padding-bottom: 3px;
+}
+
+/* resources/css/custom.css */
+
+/* تعديل حجم حقل البحث في DataTables */
+.dataTables_filter input {
+    font-size: 1rem;
+    /* حجم الخط الافتراضي */
+    padding: 0.375rem 0.75rem;
+    /* الحشو الافتراضي */
+    height: auto;
+    /* الارتفاع الافتراضي */
+    border-radius: 0.25rem;
+    /* نصف قطر الزوايا الافتراضي */
+}
+
+/* تعديل حجم select في DataTables_length */
+.dataTables_length select {
+    font-size: 1rem;
+    /* حجم الخط الافتراضي */
+    padding: 0.375rem 0.75rem;
+    /* الحشو الافتراضي */
+    height: auto;
+    /* الارتفاع الافتراضي */
+    border-radius: 0.25rem;
+    /* نصف قطر الزوايا الافتراضي */
+}
+
+div.dataTables_processing > div:last-child > div {
+    background: white;
+}
+
+/* css code for switch drak  and light  mode */
+.table-striped > tbody > tr:nth-of-type(even) > * {
+    --bs-table-color-type: initial !important;
+    --bs-table-bg-type: initial !important;
+}
+
+.custom-checkbox {
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+}
+
+.custom-checkbox input[type="checkbox"] {
+    transform: scale(1.2);
+    appearance: none;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    border: 2px solid #198c8c;
+    border-radius: 3px;
+    outline: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+    background-color: white;
+}
+
+.custom-checkbox input[type="checkbox"]:checked {
+    background-color: #198c8c;
+    /* لون الخلفية عند التحديد */
+    border-color: #198c8c;
+    /* لون الحدود عند التحديد */
+}
+
+.custom-checkbox input[type="checkbox"]:checked::after {
+    content: "\2714";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+}
+
+/* تغيير لون مربع الاختيار عند تمرير المؤشر فوقه */
+.custom-checkbox input[type="checkbox"]:hover {
+    border-color: #198c8c;
+}
+
+.dt-buttons .dt-button-collection .dropdown-item {
+    text-align: -webkit-center !important;
+}
+.custom-checkbox {
+    width: 10px;
+}
+
+tfoot {
+    display: none !important;
+}

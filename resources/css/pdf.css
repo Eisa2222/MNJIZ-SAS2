@@ -1,0 +1,42 @@
+.ql-editor {
+    color: black !important;
+}
+
+body {
+    color: black !important;
+
+    font-family: almarai;
+    font-size: 12px;
+    line-height: 1.5;
+    direction: rtl;
+}
+
+.content {
+    padding: 0;
+    margin-left: 40px !important;
+    margin-right: 40px !important;
+    position: relative;
+    min-height: 600px;
+}
+
+.ql-align-right {
+    text-align: left !important;
+}
+
+.ql-align-center {
+    text-align: center;
+}
+
+.ql-align-justify {
+    text-align: justify;
+}
+
+.ql-direction-rtl {
+    direction: rtl;
+}
+
+.is_private_and_secret {
+    text-align: left;
+    color: red;
+    margin: 0;
+}

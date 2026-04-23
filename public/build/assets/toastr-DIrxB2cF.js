@@ -1,0 +1,1 @@
+import{t}from"./toastr-KXWBn683.js";import"./_commonjsHelpers-BosuxZz1.js";import"./jquery-Czc5UB_B.js";t.options={closeButton:!1,progressBar:!0,positionClass:"toast-top-left",timeOut:"5000"};window.toastr=t;

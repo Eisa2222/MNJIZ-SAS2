@@ -1,0 +1,153 @@
+.fixed-alert {
+    position: fixed;
+    bottom: 0px;
+    left: 1%;
+    width: 80%;
+    max-width: 500px;
+    z-index: 9999;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.badge-custom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    color: #fff;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 0.8rem;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+    min-height: 40px;
+    max-height: 40px;
+}
+
+.breadcrumb {
+    list-style: none;
+    overflow: hidden;
+    text-direction: right;
+}
+
+@media (max-width: 750px) {
+    .breadcrumb {
+        display: none;
+    }
+}
+
+.breadcrumb li {
+    float: right;
+}
+
+.breadcrumb li a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 55px 10px 10px;
+    /* fallback color */
+    background: var(--primary-color);
+    position: relative;
+    display: block;
+    float: right;
+}
+
+.breadcrumb li a:after {
+    content: " ";
+    display: block;
+    width: 0;
+    height: 0;
+    border-top: 50px solid transparent;
+    /* Go big on the size, and let overflow hide */
+    border-bottom: 50px solid transparent;
+    border-right: 30px solid var(--primary-color);
+    position: absolute;
+    top: 50%;
+    margin-top: -50px;
+    right: 97.9%;
+    z-index: 2;
+}
+
+.breadcrumb li a:before {
+    content: " ";
+    display: block;
+    width: 0;
+    height: 0;
+    border-top: 50px solid transparent;
+    /* Go big on the size, and let overflow hide */
+    border-bottom: 50px solid transparent;
+    border-right: 30px solid var(--primary-second);
+    position: absolute;
+    top: 50%;
+    margin-top: -50px;
+    margin-right: 1px;
+    right: 100%;
+    z-index: 1;
+}
+
+.breadcrumb li:last-child a:before {
+    right: calc(100% - 1px);
+}
+
+.breadcrumb li:last-child a {
+    background: var(--primary-second) !important;
+    color: rgb(255, 255, 255);
+    pointer-events: none;
+    cursor: default;
+}
+
+.breadcrumb li:last-child a:after {
+    border: 0;
+}
+
+.breadcrumb li a:hover {
+    background: var(--primary-third);
+}
+
+.breadcrumb li a:hover:after {
+    border-right-color: var(--primary-third) !important;
+}
+
+/* أنماط محسنة للنجمة */
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+}
+
+.favorite-icon {
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 18px;
+    position: relative;
+    z-index: 10;
+}
+
+.favorite-icon:hover {
+    transform: scale(1.3);
+}
+
+/* تحسين أنماط النجمة المفضلة */
+.favorite-icon.text-warning {
+    color: #ffc107 !important;
+    /* اللون الأصفر للخارج */
+    fill: #ffc107 !important;
+    /* ملء الداخل باللون الأصفر */
+    -webkit-text-fill-color: #ffc107 !important;
+    /* دعم إضافي للمتصفحات */
+    text-shadow: 0 0 0 #ffc107 !important;
+    /* تأثير ظل للملء */
+}
+
+/* تأثير عند مرور المؤشر فوق النجمة المفضلة */
+.favorite-icon.text-warning:hover {
+    color: #ffb300 !important;
+    /* لون أغمق قليلاً عند المرور */
+    fill: #ffb300 !important;
+    -webkit-text-fill-color: #ffb300 !important;
+    text-shadow: 0 0 0 #ffb300 !important;
+}
+
+.sar {
+    font-size: 10px;
+}

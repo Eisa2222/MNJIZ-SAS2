@@ -1,0 +1,182 @@
+@extends('layouts.layoutMaster')
+
+@section('title', 'ارشيف العقود')
+
+@section('breadcrumb')
+    <li class="breadcrumb-item d-flex align-items-center"><a href="#">ارشيف العقود</a>
+        <i class="ti ti-star favorite-icon" data-page-name="ارشيف العقود" data-page-url="{{ url()->current() }}"
+            onclick="toggleFavorite(event, this)"></i>
+    </li>
+@endsection
+
+@section('vendor-style')
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
+@endsection
+
+@section('vendor-script')
+    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+@endsection
+@section('toastr')
+    @vite(['resources/css/toastr.css', 'resources/js/toastr.js'])
+@endsection
+
+@section('page-style')
+    @vite(['resources/css/dataTable.css'])
+@endsection
+
+
+@section('page-script')
+    <script>
+        $(document).ready(function() {
+            var table = $('#trashed-contracts-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('operations-center.contracts.trashed') }}",
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'id',
+                        orderable: true,
+                        searchable: false
+                    },
+                    {
+                        data: 'contract_name',
+                        name: 'contract_name'
+                    },
+                    {
+                        data: 'contract_number',
+                        name: 'contract_number'
+                    },
+                    {
+                        data: 'customer_name',
+                        name: 'customer_name'
+                    },
+                    {
+                        data: 'contract_start_date',
+                        name: 'contract_start_date'
+                    },
+                    {
+                        data: 'expected_closure_date',
+                        name: 'expected_closure_date'
+                    },
+                    {
+                        data: 'employee_name',
+                        name: 'employee_name'
+                    },
+                    {
+                        data: 'offer_name',
+                        name: 'offer_name'
+                    },
+                    {
+                        data: 'deleted_at',
+                        name: 'deleted_at'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                dom: '<"dt-toolbar"<"dt-toolbar-left"l><"dt-toolbar-right"fB>>rt<"row"<"col-12 d-flex align-items-center justify-content-between"ip>>',
+                buttons: [{
+                    extend: 'collection',
+                    className: 'btn btn-export btn',
+                    text: 'الإجراءات',
+                    buttons: [{
+                            extend: 'copy',
+                            text: 'نسخ'
+                        },
+                        {
+                            extend: 'excel',
+                            text: 'إكسل'
+                        }
+                    ]
+                }],
+                language: {
+                    url: "{{ asset('assets/json/ar.json') }}"
+                },
+                responsive: true,
+            });
+        });
+
+        function confirmRestore(id) {
+            Swal.fire({
+                title: 'هل أنت متأكد من استعادة هذا العقد',
+                icon: 'warning',
+                showCancelButton: true,
+                showConfirmButton: true,
+                showDenyButton: false,
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'custom-popup',
+                    title: 'custom-title',
+                    text: 'custom-text',
+                    confirmButton: 'btn btn-success custom-confirm',
+                    cancelButton: 'btn btn-danger custom-cancel'
+                },
+                confirmButtonText: 'تأكيد',
+                cancelButtonText: 'إلغاء',
+                reverseButtons: false,
+            }).then((result) => {
+                if (result.value) {
+                    $('#restore-form-' + id).submit();
+                }
+            });
+        }
+
+        function confirmForceDelete(id) {
+            Swal.fire({
+                title: 'هل أنت متأكد من حذف هذا العقد نهائياً ؟',
+                text: "لا يمكن التراجع عن هذا الإجراء!",
+                icon: 'warning',
+                showCancelButton: true,
+                showConfirmButton: true,
+                showDenyButton: false,
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'custom-popup',
+                    title: 'custom-title',
+                    text: 'custom-text',
+                    confirmButton: 'btn btn-success custom-confirm',
+                    cancelButton: 'btn btn-danger custom-cancel'
+                },
+                confirmButtonText: 'تأكيد',
+                cancelButtonText: 'إلغاء',
+                reverseButtons: false,
+            }).then((result) => {
+                if (result.value) {
+                    $('#force-delete-form-' + id).submit();
+                }
+            });
+        }
+    </script>
+@endsection
+
+@section('content')
+    <div class="card">
+        <div class="card-header">
+            <h5>ارشيف العقود </h5>
+        </div>
+        <div class="card-body">
+            <table id="trashed-contracts-table" class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>م </th>
+                        <th>اسم العقد</th>
+                        <th>رقم العقد</th>
+                        <th>العميل</th>
+                        <th>تاريخ بداية العقد</th>
+                        <th>تاريخ الإغلاق المتوقع</th>
+                        <th>مسؤول العقد</th>
+                        <th>العرض</th>
+                        <th>تاريخ الحذف</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- سيتم تعبئة الجدول بواسطة DataTables -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+@endsection

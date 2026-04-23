@@ -1,0 +1,54 @@
+name: 🚀 Auto Deploy to Server
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚀 Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            echo "🚀 Starting deployment.............."
+
+            cd ${{ secrets.PROJECT_PATH }}
+
+            # git pull origin main
+
+            git fetch origin
+            git reset --hard origin/main
+
+            # composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+            # php composer.phar install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+
+
+            php artisan down --retry=60
+
+
+            php artisan config:clear
+            php artisan cache:clear
+            php artisan route:clear
+            php artisan view:clear
+
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            # php artisan migrate --force
+
+            php artisan optimize
+
+            php artisan up
+
+            echo "Deployment completed successfully!"

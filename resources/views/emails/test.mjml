@@ -1,0 +1,174 @@
+<mjml>
+    <mj-head>
+        <mj-title>إشعار إكمال المهمة</mj-title>
+        <mj-font
+            name="Open Sans"
+            href="https://fonts.googleapis.com/css?family=Open Sans"
+        />
+        <mj-attributes>
+            <mj-all font-family="Open Sans, Helvetica, Arial, sans-serif" />
+        </mj-attributes>
+        <mj-style>
+            .details { list-style-type: none; padding: 0; direction: rtl; }
+            .details li { background-color: #f9f9f9; margin-bottom: 10px;
+            padding: 10px; border-right: 4px solid #198c8c; } .label {
+            font-weight: bold; display: block; margin-bottom: 5px; } .value {
+            display: block; color: #333333; }
+        </mj-style>
+    </mj-head>
+    <mj-body background-color="#f8f8f8">
+        <mj-raw>
+            <div
+                style="
+                    display: none;
+                    font-size: 1px;
+                    color: #ffffff;
+                    line-height: 1px;
+                    max-height: 0px;
+                    max-width: 0px;
+                    opacity: 0;
+                    overflow: hidden;
+                "
+            >
+                تم إكمال المهمة التي قمت بإنشائها
+            </div>
+        </mj-raw>
+
+        <!-- Header Section -->
+        <mj-section background-color="#ffffff">
+            <mj-column>
+                <mj-divider border-color="#198c8c" border-width="5px" />
+                <mj-image
+                    width="110px"
+                    src="http://hr.e-tec.sa//storage/image/Untitled__1_-removebg-preview-removebg-preview.png"
+                    alt="شعار"
+                    padding="10px 0"
+                />
+                <mj-text align="center" padding="0">
+                    <div
+                        style="
+                            font-family:
+                                Open Sans,
+                                Helvetica,
+                                Arial,
+                                sans-serif;
+                            font-size: 16px;
+                        "
+                    >
+                        <strong>{{ $office_name }}</strong>
+                    </div>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <!-- Content Section -->
+        <mj-section background-color="#ffffff">
+            <mj-column>
+                <mj-text align="right">
+                    <h4
+                        style="
+                            margin: 0 0 10px 0;
+                            color: #333333;
+                            direction: rtl;
+                            text-align: right;
+                            font-size: 18px;
+                        "
+                    >
+                        مرحباً {{ $user_name }},
+                    </h4>
+                    <h3
+                        style="
+                            margin: 0 0 10px 0;
+                            color: #000000;
+                            direction: rtl;
+                            text-align: right;
+                            font-size: 20px;
+                        "
+                    >
+                        تم إكمال المهمة: {{ $task_name }}
+                    </h3>
+                    <ul class="details">
+                        <li>
+                            <span class="label" style="font-size: 16px"
+                                >اسم المهمة:</span
+                            >
+                            <span class="value" style="font-size: 16px"
+                                >{{ $task_name }}</span
+                            >
+                        </li>
+                        <li>
+                            <span class="label" style="font-size: 16px"
+                                >المكلف بالمهمة:</span
+                            >
+                            <span class="value" style="font-size: 16px"
+                                >{{ $assignee_name }}</span
+                            >
+                        </li>
+                        <li>
+                            <span class="label" style="font-size: 16px"
+                                >تاريخ الإكمال:</span
+                            >
+                            <span class="value" style="font-size: 16px"
+                                >{{ $completion_date }}</span
+                            >
+                        </li>
+                        <li>
+                            <span class="label" style="font-size: 16px"
+                                >المدة المستغرقة:</span
+                            >
+                            <span class="value" style="font-size: 16px"
+                                >{{ $duration }}</span
+                            >
+                        </li>
+                    </ul>
+                    <p
+                        style="
+                            margin: 0 0 10px 0;
+                            color: #333333;
+                            direction: rtl;
+                            text-align: right;
+                            font-size: 16px;
+                        "
+                    >
+                        يمكنك الاطلاع على تفاصيل المهمة والخطوات المكتملة من
+                        خلال النظام.
+                    </p>
+                    <p
+                        style="
+                            margin: 0 5px 10px 0;
+                            direction: rtl;
+                            text-align: left;
+                            font-size: 16px;
+                        "
+                    >
+                        مع أطيب التحيات،<br />{{ $office_name }}
+                    </p>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+
+        <!-- Footer Section -->
+        <mj-section background-color="#f1f1f1">
+            <mj-column>
+                <mj-text
+                    align="center"
+                    font-size="14px"
+                    color="#797e82"
+                    line-height="22px"
+                >
+                    <p
+                        style="
+                            direction: rtl;
+                            unicode-bidi: embed;
+                            text-align: center;
+                            margin: 0;
+                            font-size: 14px;
+                        "
+                    >
+                        شكرًا لاستخدام خدماتنا. نتمنى لكم يومًا سعيدًا!
+                    </p>
+                </mj-text>
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>

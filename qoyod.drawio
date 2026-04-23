@@ -1,0 +1,13 @@
+<mxfile host="65bd71144e">
+    <diagram id="K1x-7Eapg7WFJwg3QWId" name="Page-1">
+        <mxGraphModel dx="1470" dy="563" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="10" value="&lt;font style=&quot;font-size: 19px;&quot;&gt;&lt;b&gt;الحسابات&lt;br&gt;&lt;br&gt;&lt;br&gt;المنتجات&lt;br&gt;&lt;br&gt;&lt;br&gt;المخزون&lt;br&gt;&lt;br&gt;&lt;br&gt;فئات المنتجات&lt;br&gt;&lt;br&gt;&lt;br&gt;وحدات المنتج&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;background-color: light-dark(#ffffff, var(--ge-dark-color, #121212));&quot;&gt;&lt;font&gt;&lt;font style=&quot;color: rgb(255, 51, 51);&quot;&gt;الموردون&lt;/font&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;br&gt;&lt;br&gt;أوامر الشراء&lt;br&gt;&lt;br&gt;&lt;br&gt;الفواتير&lt;br&gt;&lt;br&gt;&lt;br&gt;مدفوعات الفواتير&lt;br&gt;&lt;br&gt;&lt;br&gt;سندات المدينة&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;color: rgb(255, 51, 51);&quot;&gt;العملاء&lt;/font&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;عروض الأسعار&lt;br&gt;&lt;br&gt;&lt;br&gt;الفواتير&lt;br&gt;&lt;br&gt;&lt;br&gt;مدفوعات الفواتير&lt;br&gt;&lt;br&gt;&lt;br&gt;سندات الدائن&lt;br&gt;&lt;br&gt;&lt;br&gt;الإيصالات&lt;br&gt;&lt;br&gt;&lt;br&gt;قيود اليومية&lt;/b&gt;&lt;/font&gt;" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="-30" y="120" width="470" height="1240" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

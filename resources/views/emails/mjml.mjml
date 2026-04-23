@@ -1,0 +1,39 @@
+<mjml>
+  <mj-body background-color="#ffffff" font-size="13px">
+    <!-- شعار الشركة -->
+    <mj-section background-color="#ffffff" padding="0">
+      <mj-column vertical-align="top" width="100%">
+        <mj-image src="https://app.alburhan.sa/etmam.png" alt="Logo" align="center" border="none" width="200px" padding="0"></mj-image>
+      </mj-column>
+    </mj-section>
+
+    <!-- عنوان الرسالة -->
+    <mj-section background-color="#009FE3" vertical-align="top" padding="0">
+      <mj-column vertical-align="top" width="100%">
+        <mj-text align="center" color="#ffffff" font-size="45px" font-weight="bold" padding="50px 25px 30px 25px">
+          إتمام لتقنية المعلومات
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- محتوى الرسالة -->
+    <mj-section background-color="#009FE3" padding="20px">
+      <mj-column vertical-align="middle" width="100%">
+        <mj-text align="right" color="#ffffff" font-size="22px" font-family="Open Sans, Helvetica, Arial, sans-serif" padding="0 25px 20px">
+          مرحباً {{ $technical_name }}<br /><br />
+          نود إعلامكم بأنه تم معالجة المشكلة التي وردت من {{ $user_name }} بنجاح.
+        </mj-text>
+        <mj-text align="right" color="#ffffff" font-size="15px" font-family="Open Sans, Helvetica, Arial, sans-serif" padding="0 25px 20px">
+          نشكركم على تعاونكم وجهودكم المبذولة في حل المشكلة، ونتطلع دائماً لتقديم أفضل الخدمات.
+        </mj-text>
+
+        <mj-text align="left" color="#ffffff" font-size="18px" font-family="Open Sans, Helvetica, Arial, sans-serif" padding="25px 0px 0px 50px" style="direction: ltr;">
+          مع تحيات،
+        </mj-text>
+        <mj-text align="left" color="#ffffff" font-size="20px" font-weight="bold" padding="15px 0px 0px 25px" style="direction: ltr;">
+          فريق إتمام لتقنية المعلومات
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

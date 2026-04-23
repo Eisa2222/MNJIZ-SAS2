@@ -1,0 +1,266 @@
+/* resources/assets/css/tasks.css */
+
+/* ----------------------------------
+   تنسيق الحاويات والعناصر
+------------------------------------- */
+/* الحاوية الرئيسية للخيارات/العناصر */
+.custom-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    border: 1px solid #ccc; /* إطار حول الحاوية */
+    border-radius: 5px; /* زوايا الحاوية */
+    background-color: #fff; /* خلفية بيضاء */
+    padding: 5px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* العناصر داخل الحاوية */
+.custom-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    border-left: 1px solid #ccc; /* فاصل بين العناصر */
+    color: #000;
+}
+
+/* تصميم الدائرة (مثال لمؤشر أولوية المهمة) */
+.circle {
+    background: #90ee90; /* لون أخضر فاتح */
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    border-radius: 50%;
+}
+
+/* ----------------------------------
+   تنسيق مربعات الاختيار (Checkbox)
+------------------------------------- */
+.form-check-input {
+    width: 20px;
+    height: 20px;
+    margin: 0px 5px; /* مسافة بين المربع والحدود */
+    appearance: none; /* إزالة النمط الافتراضي */
+    border: 1px solid #000;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* عند تحديد مربع الاختيار */
+.form-check-input:checked {
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ----------------------------------
+   تنسيق الأيقونات والإضافات
+------------------------------------- */
+.ti {
+    font-size: 16px;
+}
+
+/* تعديل هوامش الـ Offcanvas */
+.offcanvas-header {
+    padding: 5px 20px !important;
+}
+
+.offcanvas-body {
+    padding: 0px 20px !important;
+}
+
+/* تنسيق زر المهام المسندة */
+.btn-dark-assigned {
+    background-color: #343a40 !important;
+    color: #fff !important;
+}
+
+/* تنسيق حدود البطاقات الخاصة بالمهام */
+.completed-task {
+    border: 1px solid green !important;
+}
+
+.incompleted-task {
+    border: 1px solid rgb(33, 34, 33) !important;
+}
+
+/* ----------------------------------
+   تنسيق صور الموظفين (Avatar)
+------------------------------------- */
+.avatar-task {
+    border-radius: 50%;
+    margin-left: -15px;
+    transition:
+        transform 0.3s ease,
+        z-index 0.3s ease;
+    position: relative;
+    cursor: pointer;
+}
+
+.avatar-task:hover {
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+/* ----------------------------------
+   تعديل مظهر الحقول عند التحقق (Validation)
+------------------------------------- */
+.was-validated .form-control.is-valid,
+.was-validated .form-control:valid,
+.was-validated .form-select.is-valid,
+.was-validated .form-select:valid,
+.was-validated .form-check-input.is-valid,
+.was-validated .form-check-input:valid,
+.was-validated .form-check-input:valid ~ .form-check-label,
+.form-check-input.is-valid ~ .form-check-label {
+    border-color: #ced4da !important;
+    box-shadow: none !important;
+    color: #444050 !important;
+}
+
+.select2-selection--multiple {
+    display: none;
+}
+
+.button-div {
+    margin-top: 150px;
+}
+
+.select2-container--default.is-invalid .select2-selection {
+    border-color: #dc3545;
+}
+.select2-container--default.is-invalid + .invalid-feedback {
+    display: block;
+}
+
+.red-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border-radius: 50%;
+    margin-left: 5px;
+    animation: blink 1s infinite;
+    top: 30%;
+}
+
+@keyframes blink {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
+/*  */
+.task-card {
+    background-color: #ebebed54 !important;
+}
+
+.steps-card {
+    background-color: #198c8c1c !important;
+}
+
+/* Css */
+
+/* تنسيقات إضافية للجدول المتداخل */
+.nested-steps-container {
+    background-color: #f8f9fa;
+    margin: 0.5rem 2rem;
+    border-radius: 0.5rem;
+}
+
+.nested-steps-table {
+    margin-bottom: 0;
+}
+
+.nested-steps-table thead th {
+    background-color: #e9ecef;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.dt-control {
+    cursor: pointer;
+}
+
+tr.shown .dt-control i {
+    transform: rotate(90deg);
+    transition: transform 0.2s ease;
+}
+
+/* تنسيق صف المهمة عند التوسيع */
+tr.has-steps {
+    background-color: #fff;
+}
+
+tr.has-steps.shown {
+    background-color: #f8f9fa;
+}
+
+/* تنسيق الأيقونات */
+.ti {
+    font-size: 1.1rem;
+    transition: transform 0.2s ease;
+}
+
+/* تنسيق الشارات */
+.badge {
+    padding: 0.5em 0.75em;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 0.25rem;
+}
+
+/* تحسين تنسيق الأزرار */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+}
+
+/* تنسيق صف الخطوات */
+.steps-row {
+    background-color: #f8f9fa;
+}
+
+/* تحسينات للخطوات المفتوحة تلقائياً */
+.parent-row {
+    transition: background-color 0.3s ease;
+}
+
+.parent-row.shown {
+    background-color: #f8f9fa !important;
+}
+
+.steps-row {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* إضافة هذا الكود إلى CSS */
+table.dataTable > tbody > tr > td.dt-control:before {
+    display: none !important;
+}
+
+/* تأكد من إخفاء الايقونة في حالة الجدول المستجيب */
+table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
+table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
+    display: none !important;
+}
