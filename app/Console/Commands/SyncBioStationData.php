@@ -46,9 +46,9 @@ class SyncBioStationData extends Command
     public function handle()
     {
         
-        $settings = Settings::first();
+        $settings = Settings::current();
 
-        if (!$settings || !$settings->biostation_api_key) {
+        if (! $settings->exists || ! $settings->biostation_api_key) {
             Log::warning('BioStation settings are not configured.');
             $this->error('BioStation settings are not configured.');
             return 1;

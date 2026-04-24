@@ -163,9 +163,9 @@ class PurgeSoftDeletedRecords extends Command
     protected function getArchiveDeleteDuration()
     {
         // افتراض أن الإعداد يحتوي على مفتاح محدد مثل 'archive_delete_duration'
-        $settings = Settings::first();
+        $settings = Settings::current();
 
-        if ($settings && is_numeric($settings->archive_delete_duration) && (int)$settings->archive_delete_duration > 0) {
+        if ($settings->exists && is_numeric($settings->archive_delete_duration) && (int)$settings->archive_delete_duration > 0) {
             return (int)$settings->archive_delete_duration;
         }
 

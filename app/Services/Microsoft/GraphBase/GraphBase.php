@@ -115,7 +115,7 @@ class GraphBase
     // الحصول على إعدادات Microsoft من قاعدة البيانات
     public function getMicrosoftSettings(): array
     {
-        $setting = Settings::first();
+        $setting = Settings::current();
 
         if (!$setting) {
             Log::error('لا توجد إعدادات في جدول الإعدادات');
@@ -385,7 +385,7 @@ class GraphBase
         array $attachments = [],
         string $bodyType = 'HTML'
     ): bool {
-        $setting = Settings::first();
+        $setting = Settings::current();
 
         if (!$setting || !$setting->main_email) {
             Log::error('البريد الإلكتروني الرئيسي غير محدد في الإعدادات');

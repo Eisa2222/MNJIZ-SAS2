@@ -106,7 +106,7 @@ trait HandlesTaskAndEvent
     */
     private function addTaskAndEventAndSendEmail($assignedUser, $taskData)
     {
-        SyncTaskWithMicrosoftJob::dispatch($assignedUser, $taskData, Settings::find(1)->office_name);
+        SyncTaskWithMicrosoftJob::dispatch($assignedUser, $taskData, Settings::current()->office_name);
     }
 
 

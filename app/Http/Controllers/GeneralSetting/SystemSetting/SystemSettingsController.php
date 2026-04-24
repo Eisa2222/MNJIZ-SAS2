@@ -26,7 +26,7 @@ class SystemSettingsController extends Controller
     */
     public function index()
     {
-        $settings       = Settings::first();
+        $settings       = Settings::current();
         $attachments    = CompanyAttachment::first();
 
 
@@ -64,10 +64,9 @@ class SystemSettingsController extends Controller
         $validated = $request->validated();
 
         // الحصول على إعدادات النظام الحالية أو إنشاء جديدة إذا لم توجد
-        $settings = Settings::first();
-        if (!$settings) {
-            $settings = new Settings();
-        }
+        // Settings::current() does firstOrCreate under the current tenant,
+        // so we always get back a real, saved model tied to this firm.
+        $settings = Settings::current();
 
         // تحديث إعدادات عامة
         if ($request->has('office_name')) {

@@ -244,7 +244,7 @@ class EmployeesController extends Controller
 
 
             // إرسال إشعار كلمة المرور أول مرة
-            $settings = Settings::find(1);
+            $settings = Settings::current();
             if ($settings && $settings->main_email) {
                 $this->sendPasswordResetFirstNotification($user->id);
                 $message = 'تم إضافة الموظف وإرسال إشعار له بنجاح.';
@@ -623,7 +623,7 @@ class EmployeesController extends Controller
     */
     public function sendPasswordResetFirstNotification($userId)
     {
-        $settings = Settings::find(1);
+        $settings = Settings::current();
 
         if ($settings->main_email == "") {
             return response()->json([
@@ -806,7 +806,7 @@ class EmployeesController extends Controller
 
 
 
-        $settings = Settings::find(1);
+        $settings = Settings::current();
 
         $profileUrl = route('public-profile', $employee->id);
 

@@ -27,7 +27,7 @@ class BioStationService
         }
 
 
-        $settings = Settings::first();
+        $settings = Settings::current();
 
         $this->apiKey         = $settings->biostation_api_key ?? null;
         $this->apiUrl         = $settings->biostation_api_url ?? 'https://api.biostation.com';

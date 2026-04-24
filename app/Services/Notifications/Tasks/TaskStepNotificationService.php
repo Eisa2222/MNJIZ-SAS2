@@ -32,7 +32,7 @@ class TaskStepNotificationService
         }
 
         try {
-            $this->officeName = Settings::find(1)?->office_name ?? '';
+            $this->officeName = Settings::current()?->office_name ?? '';
         } catch (\Throwable $e) {
             $this->officeName = '';
         }

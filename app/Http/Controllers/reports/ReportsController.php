@@ -50,7 +50,7 @@ class ReportsController extends Controller
     */
     public function customersReport()
     {
-        $colorsUnique = Settings::find(1)->colors;
+        $colorsUnique = Settings::current()->colors;
 
         // استرجاع جميع العملاء مع العلاقات
         $customers = Customers::with([
@@ -184,7 +184,7 @@ class ReportsController extends Controller
         ];
 
         // الألوان الفريدة للمخططات
-        $colorsUnique = Settings::find(1)->colors;
+        $colorsUnique = Settings::current()->colors;
         // بيانات الجدول
         $offers = Offers::with(['customer', 'relationshipManager'])->get();
 
@@ -363,7 +363,7 @@ class ReportsController extends Controller
             ->values();
 
         // الألوان الفريدة للمخططات
-        $colorsUnique = Settings::find(1)->colors;
+        $colorsUnique = Settings::current()->colors;
 
         // بيانات الجدول (إن وجدت)
         $contracts = Contract::with(['customer', 'contractManager', 'contract_status'])->get();
@@ -458,7 +458,7 @@ class ReportsController extends Controller
         ];
 
         // الألوان الفريدة للمخططات
-        $colorsUnique = Settings::find(1)->colors;
+        $colorsUnique = Settings::current()->colors;
 
         // تحويل بيانات الحالة إلى نصوص
         $powersByStatus = $powersByStatus->map(function ($item) {
@@ -572,7 +572,7 @@ class ReportsController extends Controller
             });
 
         // الألوان الفريدة للمخططات
-        $colorsUnique = Settings::find(1)->colors;
+        $colorsUnique = Settings::current()->colors;
 
         return view('reports.opponents', compact(
             'totalOpponents',
@@ -715,7 +715,7 @@ class ReportsController extends Controller
         ];
 
         // الألوان الفريدة للمخططات
-        $colorsUnique = Settings::find(1)->colors;
+        $colorsUnique = Settings::current()->colors;
 
         return view('reports.projects', compact(
             'totalProjects',
@@ -845,7 +845,7 @@ class ReportsController extends Controller
             ->values();
 
         // الألوان الفريدة للمخططات
-        $colorsUnique = Settings::find(1)->colors;
+        $colorsUnique = Settings::current()->colors;
 
         return view('reports.lawsuits', compact(
             'totalLawsuits',
@@ -982,7 +982,7 @@ class ReportsController extends Controller
 
 
         // الألوان الفريدة للمخططات
-        $colorsUnique = Settings::find(1)->colors;
+        $colorsUnique = Settings::current()->colors;
 
         return view('reports.sessions', compact(
             'totalSessions',
@@ -1157,7 +1157,7 @@ class ReportsController extends Controller
             });
 
         // الألوان الفريدة للمخططات
-        $colorsUnique = Settings::find(1)->colors;
+        $colorsUnique = Settings::current()->colors;
 
         return view('reports.employees', compact(
             'totalEmployees',

@@ -2,6 +2,8 @@
 
 namespace App\Models\GeneralSetting\SystemSetting;
 
+use App\Tenancy\Concerns\BelongsToTenant;
+use App\Tenancy\TenantContext;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -9,7 +11,7 @@ use Illuminate\Support\Facades\Crypt;
 
 class Settings extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
     protected $fillable = [
         'image',
         // 'site_title',
@@ -102,11 +104,60 @@ class Settings extends Model
     protected static function booted()
     {
         static::saved(function ($settings) {
-            Cache::forget('qoyod_api_key');
-            Cache::forget('qoyod_base_url');
+            // Per-tenant cache keys — Module 5 isolation. Previously a single
+            // global 'qoyod_api_key' entry leaked tenant A's key to tenant B.
+            $tenantId = $settings->tenant_id ?? TenantContext::currentId();
+            $apiKeyCache  = self::qoyodCacheKey('api_key',  $tenantId);
+            $baseUrlCache = self::qoyodCacheKey('base_url', $tenantId);
 
-            Cache::put('qoyod_api_key', $settings->qoyod_api_key, now()->addMinutes(30));
-            Cache::put('qoyod_base_url', $settings->qoyod_base_url, now()->addMinutes(30));
+            Cache::forget($apiKeyCache);
+            Cache::forget($baseUrlCache);
+
+            Cache::put($apiKeyCache,  $settings->qoyod_api_key,  now()->addMinutes(30));
+            Cache::put($baseUrlCache, $settings->qoyod_base_url, now()->addMinutes(30));
         });
+    }
+
+    /**
+     * Tenant-scoped cache key for legacy singleton integration credentials.
+     * The old code wrote under the literal 'qoyod_api_key' key; under
+     * multi-tenancy every tenant now owns its own slot.
+     */
+    public static function qoyodCacheKey(string $suffix, ?int $tenantId = null): string
+    {
+        $tenantId ??= TenantContext::currentId() ?? 0;
+        return "tenant_{$tenantId}_qoyod_{$suffix}";
+    }
+
+    /**
+     * Return THE settings row for the current tenant, or an empty unsaved
+     * Settings instance if none exists yet.
+     *
+     * Replaces the legacy singleton access pattern:
+     *   Settings::find(1)
+     *   Settings::first()   // fine post-trait, but ambiguous
+     *
+     * Behavior:
+     *   - Scoped via BelongsToTenant → only the current tenant's row.
+     *   - If no row exists, returns a NEW unsaved instance (not persisted)
+     *     so caller code like `$settings->office_name` stays null-safe —
+     *     mirrors the legacy `Settings::first()` returning null behavior,
+     *     but without crashing on `$settings->x`.
+     *
+     * Use `$settings->exists` to check whether there is actually a row.
+     *
+     * Super-admin / central context (no tenant resolved) returns the
+     * default tenant's row to keep artisan boot paths functional.
+     */
+    public static function current(): self
+    {
+        $tenantId = TenantContext::currentId();
+
+        if ($tenantId === null) {
+            $row = static::withoutTenancy()->orderBy('id')->first();
+            return $row ?? new self();
+        }
+
+        return static::firstOrNew(['tenant_id' => $tenantId]);
     }
 }

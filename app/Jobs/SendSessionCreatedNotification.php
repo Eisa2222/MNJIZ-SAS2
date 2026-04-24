@@ -38,7 +38,7 @@ class SendSessionCreatedNotification implements ShouldQueue
 
     public function handle(): void
     {
-        $settings = Settings::first();
+        $settings = Settings::current();
 
         if (empty($settings?->main_email)) {
             \Log::error('Main email is not set in settings.');

@@ -117,7 +117,7 @@ class SessionReminderService
     */
     public function sendEmailReminder(Session $session): array
     {
-        $settings = Settings::find(1);
+        $settings = Settings::current();
         $users = $session->assignedEmployees;
 
         if ($users->isEmpty()) {
@@ -215,7 +215,7 @@ class SessionReminderService
         $subject = "تذكير: موعد آخر مهلة للاعتراض على الجلسة ({$session->session_name})";
         $body    = view('emails.objection-reminder', [
             'user'             => null,
-            'settings'         => Settings::find(1),
+            'settings'         => Settings::current(),
             'objectionDate' => $objectionDate,
             'session'          => $session,
         ])->render();

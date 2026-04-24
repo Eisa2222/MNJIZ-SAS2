@@ -131,7 +131,7 @@ class MicrosoftGraphBaseService
      */
     public function getMicrosoftSettings()
     {
-        $setting = Settings::first();
+        $setting = Settings::current();
 
         if (!$setting) {
             Log::error('لا توجد إعدادات في جدول الإعدادات.');
@@ -429,7 +429,7 @@ class MicrosoftGraphBaseService
      */
     public function sendEmail($to, $subject, $body,$attachments = [], $bodyType = 'HTML')
     {
-        $setting = Settings::first();
+        $setting = Settings::current();
         $accessToken = $this->getAppAccessToken();
 
         if (!$accessToken) {

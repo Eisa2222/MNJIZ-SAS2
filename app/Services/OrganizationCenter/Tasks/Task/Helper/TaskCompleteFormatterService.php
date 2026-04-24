@@ -21,7 +21,7 @@ class TaskCompleteFormatterService
             'reason'             => $reason ?? '',
             'createdAt'          => $createdAt ?? '',
 
-            'office_name'       => Settings::find(1)->office_name ?? '',
+            'office_name'       => Settings::current()->office_name ?? '',
         ];
     }
 }

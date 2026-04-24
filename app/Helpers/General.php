@@ -80,8 +80,8 @@ class General
     public static function sendSMS($message, $mobileNumber)
     {
 
-        $settings = Settings::first();
-        if (!$settings) {
+        $settings = Settings::current();
+        if (! $settings->exists) {
             return false;
         }
 

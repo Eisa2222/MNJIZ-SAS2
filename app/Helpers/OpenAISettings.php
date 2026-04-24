@@ -14,7 +14,7 @@ class OpenAISettings
     public static function get()
     {
         // تجنب الكاش مؤقتاً للتأكد من القيم
-        $settings = Settings::first();
+        $settings = Settings::current();
 
         $data = [
             'api_key' => $settings->openai_api_key,
@@ -35,7 +35,7 @@ class OpenAISettings
      */
     public static function isEnabled()
     {
-        $settings = Settings::first();
+        $settings = Settings::current();
         return $settings ? $settings->chatgpt_enabled == 1 : false;
     }
 

@@ -34,7 +34,7 @@ class DashboardController extends Controller
         $userId = auth()->id();
 
         // لجلب الوان المخططات
-        $colorsUnique = Settings::find(1)->colors;
+        $colorsUnique = Settings::current()->colors;
 
 
         /*

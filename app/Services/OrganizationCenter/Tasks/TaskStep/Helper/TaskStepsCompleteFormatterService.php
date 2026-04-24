@@ -20,7 +20,7 @@ class TaskStepsCompleteFormatterService
             'step_name'             => $step->name ?? '',
             'completion_date'       => $step->step_end_date ?? '',
             'duration'              => $step->duration ?? '',
-            'office_name'           => Settings::find(1)->office_name ?? '',
+            'office_name'           => Settings::current()->office_name ?? '',
             'reject_reason'         => $step->reject_reason ?? '',
         ];
     }

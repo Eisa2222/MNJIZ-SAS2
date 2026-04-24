@@ -35,7 +35,7 @@ class EmployeeLeaveRequestService
         }
 
         // جلب أيام العطلة من الإعدادات - نفس طريقة JavaScript
-        $settings = Settings::first();
+        $settings = Settings::current();
         $weeklyDaysOff = [];
 
         if ($settings && isset($settings->weekly_days_off)) {
@@ -162,7 +162,7 @@ class EmployeeLeaveRequestService
             ->get();
 
         // جلب أيام العطلة الأسبوعية من الإعدادات
-        $settings = Settings::first();
+        $settings = Settings::current();
         $weeklyDaysOff = [];
         if ($settings && isset($settings->weekly_days_off)) {
             if (is_string($settings->weekly_days_off)) {
@@ -311,7 +311,7 @@ class EmployeeLeaveRequestService
             ->get();
 
         // جلب أيام العطلة الأسبوعية من الإعدادات
-        $settings = Settings::first();
+        $settings = Settings::current();
         $weeklyDaysOff = [];
         if ($settings && isset($settings->weekly_days_off)) {
             if (is_string($settings->weekly_days_off)) {

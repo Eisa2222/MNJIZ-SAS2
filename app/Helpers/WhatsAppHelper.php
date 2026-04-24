@@ -11,22 +11,20 @@ class WhatsAppHelper
 
     public static function isEnabled()
     {
-        $settings = Settings::first();
+        $settings = Settings::current();
 
-        if (!$settings || !$settings->whatsapp_enabled) {
+        if (! $settings->exists || ! $settings->whatsapp_enabled) {
             return false;
         }
-
-
 
         return true;
     }
 
     public static function getCredentials()
     {
-        $settings = Settings::first();
+        $settings = Settings::current();
 
-        if (!$settings) {
+        if (! $settings->exists) {
             return null;
         }
 

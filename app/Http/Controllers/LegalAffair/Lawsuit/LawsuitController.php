@@ -59,7 +59,7 @@ class LawsuitController extends Controller
 
     public function __construct(MicrosoftGraphBaseService $graphService, MicrosoftTeamsService $teamsService, private SurveySmsService $surveySmsService)
     {
-        $this->office_name = Settings::find(1)->office_name;
+        $this->office_name = Settings::current()->office_name;
 
         $this->middleware(function ($request, $next) {
             if ($request->user()->can('كل الدعاوى') || $request->user()->can('الدعاوى الخاصة بي')) {

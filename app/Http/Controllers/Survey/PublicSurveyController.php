@@ -26,7 +26,7 @@ class PublicSurveyController extends Controller
             return view('public-pages.not-found');
         }
 
-        $settings = Settings::findOrfail(1);
+        $settings = Settings::current();
 
         return view('public-pages.surveys.index', compact('surveyResponse', 'settings'));
     }

@@ -85,6 +85,30 @@ final class SettingsRepository
         return $map[$key]['value'] ?? $default;
     }
 
+    /**
+     * Resolve a setting value preferring the current tenant, falling back to
+     * the platform-wide central setting if the tenant hasn't overridden it.
+     *
+     *   tenant setting  →  central setting  →  $default
+     *
+     * Use this for values that MAY be customized per firm but have a sensible
+     * platform default (e.g. support email, default signature, branding).
+     */
+    public function getWithFallback(string $key, mixed $default = null, ?int $tenantId = null): mixed
+    {
+        try {
+            $tenantId = $this->resolveTenantId($tenantId);
+            $tenantValue = $this->all($tenantId)[$key]['value'] ?? null;
+            if ($tenantValue !== null) {
+                return $tenantValue;
+            }
+        } catch (\RuntimeException $e) {
+            // No tenant resolved → fall straight through to central/default.
+        }
+
+        return $this->getCentral($key, $default);
+    }
+
     public function set(string $key, mixed $value, array $meta = [], ?int $tenantId = null): TenantSetting
     {
         $tenantId = $this->resolveTenantId($tenantId);

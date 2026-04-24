@@ -242,7 +242,7 @@ class InvoiceController extends Controller
     public function create()
     {
         $next_number = $this->generateInvoiceNumber();
-        $setting = Settings::find(1);
+        $setting = Settings::current();
         $purchase_category = SettingsPurchaseCategory::select(['id', 'name'])->get();
         return view('purchasing_center.invoices.create', compact('setting', 'purchase_category', 'next_number'));
     }
@@ -353,7 +353,7 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::with('purchases')->findOrFail($id);
 
-        $setting = Settings::find(1);
+        $setting = Settings::current();
 
         return view('purchasing_center.invoices.show', compact('invoice', 'setting'));
     }
@@ -368,7 +368,7 @@ class InvoiceController extends Controller
     */
     public function edit($id)
     {
-        $setting = Settings::find(1);
+        $setting = Settings::current();
 
         $purchase_category = SettingsPurchaseCategory::select(['id', 'name'])->get();
 
@@ -502,7 +502,7 @@ class InvoiceController extends Controller
         try {
             // جلب الفاتورة والإعدادات
             $invoice = Invoice::with('purchases', 'user.employee')->findOrFail($id);
-            $setting = Settings::find(1);
+            $setting = Settings::current();
 
             // إعداد متغيرات للصور والشعار
             $headerPath = $setting->horizontal_header_image ?
@@ -714,7 +714,7 @@ class InvoiceController extends Controller
     public function createByItem($id)
     {
         $next_number = $this->generateInvoiceNumber();
-        $setting = Settings::find(1);
+        $setting = Settings::current();
         $purchase_category = SettingsPurchaseCategory::select(['id', 'name'])->get();
 
         $purchase_request = PurchaseRequest::find($id);

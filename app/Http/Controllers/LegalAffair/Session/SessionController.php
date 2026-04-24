@@ -280,7 +280,7 @@ class SessionController extends Controller
     */
     public function sendSessionCreatedNotification($userId, $taskData, $session)
     {
-        $settings = Settings::find(1);
+        $settings = Settings::current();
 
         if ($settings->main_email == "") {
             return response()->json([

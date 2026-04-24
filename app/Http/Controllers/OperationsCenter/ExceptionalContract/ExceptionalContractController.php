@@ -116,7 +116,7 @@ class ExceptionalContractController extends Controller
 
         $pending        = $exceptional_contract->pendingApprovalFor(auth()->user());
 
-        $seal   = Settings::first()->signature ?? null;
+        $seal   = Settings::current()->signature ?? null;
         $header =  SettingsHelper::get('horizontal_header_image') ?? null;
         $footer =  SettingsHelper::get('horizontal_footer_image') ?? null;
 

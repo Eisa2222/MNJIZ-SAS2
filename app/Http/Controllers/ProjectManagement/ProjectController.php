@@ -68,7 +68,7 @@ class ProjectController extends Controller
     */
     public function __construct(private TaskService $taskService)
     {
-        $this->office_name = Settings::find(1)->office_name;
+        $this->office_name = Settings::current()->office_name;
 
         $this->middleware(function ($request, $next) {
             if ($request->user()->can('كل المشاريع') || $request->user()->can('المشاريع الخاصة بي') ||   $request->user()->can('الإعتماد الفني للمشاريع')) {
