@@ -13,12 +13,13 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\User;
 use App\Services\EmailService;
 use App\Services\Microsoft\ToDo\ToDoService;
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class SyncTaskWithMicrosoftJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, TenantAwareJob;
 
     protected $assignedUsers;
     protected $taskData;
@@ -33,6 +34,7 @@ class SyncTaskWithMicrosoftJob implements ShouldQueue
         $this->assignedUsers    = $assignedUsers;
         $this->taskData         = $taskData;
         $this->officeName       = $officeName;
+        $this->captureTenant();
     }
 
     public function handle(MicrosoftGraphBaseService $graphService, ToDoService $toDoService)

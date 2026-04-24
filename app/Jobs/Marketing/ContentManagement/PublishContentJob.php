@@ -9,6 +9,7 @@ use App\Models\general_setting\SettingsSocial;
 use App\Services\Social\LinkedIn\LinkedInService;
 use App\Services\Social\Twitter\TwitterService;
 use App\Services\Marketing\ContentManagement\ContentManagementService;
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -21,13 +22,14 @@ use Illuminate\Support\Facades\Storage;
 
 class PublishContentJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, TenantAwareJob;
 
     public SocialPublication $attempt;
 
     public function __construct(SocialPublication $attempt)
     {
         $this->attempt = $attempt->fresh(['contentManagement']);
+        $this->captureTenant();
     }
 
     public function handle(

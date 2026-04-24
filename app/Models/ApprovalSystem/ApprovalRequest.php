@@ -5,6 +5,7 @@ namespace App\Models\ApprovalSystem;
 use App\Models\Hr\Employees\Employees;
 use App\Models\SystemAdministration\CredentialsManagement\ApprovalFlow;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 
 class ApprovalRequest extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
         'approval_flow_id',
         'approvable_type',

@@ -2,13 +2,14 @@
 
 namespace App\Models\Survey;
 
+use App\Tenancy\Concerns\BelongsToTenant;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class SurveyAnswer extends Model
 {
-    use HasFactory,  Cachable;
+    use HasFactory,  Cachable, BelongsToTenant;
 
     protected $fillable = [
         'survey_response_id',

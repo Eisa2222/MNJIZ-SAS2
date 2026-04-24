@@ -5,6 +5,7 @@ namespace App\Models\Survey;
 use App\Enums\Survey\SurveyResponse\SurveyResponseStatus;
 use App\Models\Hr\Employees\Employees;
 use App\Models\OperationsCenter\Customer\Customers;
+use App\Tenancy\Concerns\BelongsToTenant;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use Illuminate\Support\Str;
 
 class SurveyResponse extends Model
 {
-    use HasFactory, Cachable;
+    use HasFactory, Cachable, BelongsToTenant;
 
     protected $fillable = [
         'token',

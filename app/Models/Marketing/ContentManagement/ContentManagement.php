@@ -15,6 +15,7 @@ use App\Models\general_setting\Marketing\SettingsContentPurpose;
 use App\Models\general_setting\SettingsSocial;
 use App\Models\Hr\Employees\Employees;
 use App\Models\Marketing\ContentManagement\SocialPublication\SocialPublication;
+use App\Tenancy\Concerns\BelongsToTenant;
 use App\Traits\ApprovalWorkflow\HasApprovalWorkflow;
 use Carbon\Carbon;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
@@ -35,7 +36,7 @@ class ContentManagement extends Model
     |============================================================================
     */
 
-    use HasFactory, SoftDeletes, LogsActivity, HasApprovalWorkflow;
+    use HasFactory, SoftDeletes, LogsActivity, HasApprovalWorkflow, BelongsToTenant;
     // use Cachable;
 
     protected $fillable = [

@@ -3,6 +3,7 @@
 namespace App\Models\Marketing\CampaignManagement\CampaignResult;
 
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
@@ -17,7 +18,7 @@ class CampaignResult extends Model
     |============================================================================
     |============================================================================
     */
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, BelongsToTenant;
 
     protected $fillable = [
         'campaign_id',

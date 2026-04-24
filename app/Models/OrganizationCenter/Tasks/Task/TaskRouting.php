@@ -4,12 +4,13 @@ namespace App\Models\OrganizationCenter\Tasks\Task;
 
 use App\Enums\OrganizationCenter\Tasks\Task\TaskRoutingAction;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class TaskRouting extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     /*
     |============================================================================

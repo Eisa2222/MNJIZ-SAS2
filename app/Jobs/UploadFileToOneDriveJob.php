@@ -6,6 +6,7 @@ use App\Models\OperationsCenter\Contract\ContractAttachment;
 use App\Models\User; // تأكد من استيراد نموذج User
 use App\Services\FilesService;
 use App\Services\MicrosoftGraphBaseService; // استيراد خدمة MicrosoftGraphBaseService
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 class UploadFileToOneDriveJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, TenantAwareJob;
 
     public $userIdInSystem;
     public $userId;
@@ -37,6 +38,7 @@ class UploadFileToOneDriveJob implements ShouldQueue
         $this->filePath = $filePath;
         $this->fileName = $fileName;
         $this->attachmentId = $attachmentId;
+        $this->captureTenant();
     }
 
     /**

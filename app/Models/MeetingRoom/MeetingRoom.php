@@ -3,6 +3,7 @@
 namespace App\Models\MeetingRoom;
 
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class MeetingRoom extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, Cachable;
+    use HasFactory, SoftDeletes, LogsActivity, Cachable, BelongsToTenant;
 
     /*
     |============================================================================

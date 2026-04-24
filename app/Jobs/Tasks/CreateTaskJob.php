@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Tasks;
 
+use App\Tenancy\Concerns\TenantAwareJob;
 use App\Traits\HandlesTaskAndEvent;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -11,21 +12,15 @@ use Illuminate\Queue\SerializesModels;
 
 class CreateTaskJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, HandlesTaskAndEvent;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, HandlesTaskAndEvent, TenantAwareJob;
 
     protected $newTask;
     protected $employeeId;
 
-    /**
-     * Create a new job instance.
-     *
-     * @param array $newTask
-     * @param int $employeeId
-     */
     public function __construct(array $newTask)
     {
         $this->newTask = $newTask;
-        // $this->employeeId = $employeeId;
+        $this->captureTenant();
     }
 
     /**

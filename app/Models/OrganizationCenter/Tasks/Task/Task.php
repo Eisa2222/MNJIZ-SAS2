@@ -21,6 +21,7 @@ use App\Models\OperationsCenter\Offer\Offers;
 use App\Models\OrganizationCenter\Tasks\TaskStep\TaskStep;
 use App\Models\Self_services\ClearanceCertificate;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Carbon\Carbon;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,7 +39,7 @@ class Task extends Model
     |============================================================================
     |============================================================================
     */
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, BelongsToTenant;
     use Cachable;
 
 

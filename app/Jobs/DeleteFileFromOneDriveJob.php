@@ -6,6 +6,7 @@ use App\Models\OperationsCenter\Contract\ContractAttachment;
 use App\Models\User;
 use App\Services\FilesService;
 use App\Services\MicrosoftGraphBaseService;
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 class DeleteFileFromOneDriveJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, TenantAwareJob;
 
     public $userIdInSystem;
     public $userId;
@@ -33,6 +34,7 @@ class DeleteFileFromOneDriveJob implements ShouldQueue
         $this->userId = $userId; // معرف المستخدم في OneDrive
         $this->fileId = $fileId;
         $this->attachmentId = $attachmentId;
+        $this->captureTenant();
     }
 
     /**

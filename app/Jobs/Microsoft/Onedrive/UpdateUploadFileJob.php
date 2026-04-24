@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\FilesService;
 use App\Services\Microsoft\Onedrive\Onedrive;
 use App\Services\MicrosoftGraphBaseService;
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Log;
 
 class UpdateUploadFileJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, TenantAwareJob;
 
     public $tries = 3;
     public $timeout = 300;
@@ -25,7 +26,9 @@ class UpdateUploadFileJob implements ShouldQueue
     public function __construct(
         public int $userId,
         public array $updateData
-    ) {}
+    ) {
+        $this->captureTenant();
+    }
 
     /**
      * Execute the job.

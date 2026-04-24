@@ -2,6 +2,7 @@
 
 namespace App\Models\LegalAI;
 
+use App\Tenancy\Concerns\BelongsToTenant;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AiChatMessage extends Model
 {
-    use HasFactory, Cachable;
+    use HasFactory, Cachable, BelongsToTenant;
 
     protected $table = 'ai_chat_messages';
 

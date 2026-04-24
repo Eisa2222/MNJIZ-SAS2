@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\FilesService;
 use App\Services\Microsoft\Onedrive\Onedrive;
 use App\Services\MicrosoftGraphBaseService;
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 
 class RenameFileJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, TenantAwareJob;
 
     public int    $userIdInSystem;
     public string $oneDriveUserId;
@@ -40,6 +41,7 @@ class RenameFileJob implements ShouldQueue
         $this->fileId         = $fileId;
         $this->newFileName    = $newFileName;
         $this->attachmentId   = $attachmentId;
+        $this->captureTenant();
     }
 
     public function handle(Onedrive $onedrive): void

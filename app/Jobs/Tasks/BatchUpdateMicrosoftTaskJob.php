@@ -6,6 +6,7 @@ use App\Models\OrganizationCenter\Tasks\Task\Task;
 use App\Services\MicrosoftGraphBaseService;
 use App\Services\EmailService;
 use App\Services\OrganizationCenter\Tasks\Task\TaskService;
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 
 class BatchUpdateMicrosoftTaskJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, TenantAwareJob;
 
     protected $task;
     protected $taskData;
@@ -32,6 +33,7 @@ class BatchUpdateMicrosoftTaskJob implements ShouldQueue
         $this->taskData = $taskData;
         $this->officeName = $officeName;
         $this->existingUsers = $existingUsers;
+        $this->captureTenant();
     }
 
     public function handle(TaskService $taskService, MicrosoftGraphBaseService $graphService)

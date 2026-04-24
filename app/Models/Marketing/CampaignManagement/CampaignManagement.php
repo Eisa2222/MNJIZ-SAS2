@@ -11,6 +11,7 @@ use App\Models\general_setting\Marketing\SettingsTargetAudience;
 use App\Models\general_setting\SettingsSocial;
 use App\Models\Hr\Employees\Employees;
 use App\Models\Marketing\CampaignManagement\CampaignResult\CampaignResult;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,7 +28,7 @@ class CampaignManagement extends Model
     |============================================================================
     */
 
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, BelongsToTenant;
     // use Cachable;
 
     protected $fillable = [

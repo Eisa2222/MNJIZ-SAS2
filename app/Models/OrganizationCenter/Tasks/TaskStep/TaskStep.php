@@ -5,13 +5,14 @@ namespace App\Models\OrganizationCenter\Tasks\TaskStep;
 use App\Enums\OrganizationCenter\Tasks\TaskStep\TaskStepStatus;
 use App\Models\OrganizationCenter\Tasks\Task\Task;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class TaskStep extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     /*
     |============================================================================

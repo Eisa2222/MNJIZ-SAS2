@@ -4,6 +4,7 @@ namespace App\Models\Marketing\ContentManagement\SocialPublication;
 
 use App\Enums\Marketing\ContentManagement\SocialPublication\SocialPublicationStatus;
 use App\Models\Marketing\ContentManagement\ContentManagement;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class SocialPublication extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, BelongsToTenant;
 
     /*
     |============================================================================

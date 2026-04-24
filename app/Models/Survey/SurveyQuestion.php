@@ -3,6 +3,7 @@
 namespace App\Models\Survey;
 
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class SurveyQuestion extends Model
 {
-    use HasFactory, LogsActivity, SoftDeletes, Cachable;
+    use HasFactory, LogsActivity, SoftDeletes, Cachable, BelongsToTenant;
 
     protected $fillable = [
         'survey_id',

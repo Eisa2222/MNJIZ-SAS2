@@ -2,15 +2,17 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Services\BioStationService;
-use App\Models\Setting;
+use App\Console\Concerns\IteratesTenants;
 use App\Models\GeneralSetting\SystemSetting\Settings;
+use App\Models\Tenant;
+use App\Services\BioStationService;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
 class SyncBioStationData extends Command
 {
+    use IteratesTenants;
 
     private $bioStationService;
     /**
@@ -45,41 +47,35 @@ class SyncBioStationData extends Command
      */
     public function handle()
     {
-        
-        $settings = Settings::current();
+        $this->perTenant(function (Tenant $tenant) {
+            $settings = Settings::current();
 
-        if (! $settings->exists || ! $settings->biostation_api_key) {
-            Log::warning('BioStation settings are not configured.');
-            $this->error('BioStation settings are not configured.');
-            return 1;
-        }
+            if (! $settings->exists || ! $settings->biostation_api_key) {
+                return;   // not configured for this tenant, skip quietly
+            }
 
-        $this->info('Starting synchronization with BioStation...');
+            $this->info("[tenant:{$tenant->slug}] Starting BioStation sync...");
 
-        // استرجاع البصمات من الجهاز
-        $fingerprints = $this->bioStationService->getFingerprintsFromDevice();
+            $fingerprints = $this->bioStationService->getFingerprintsFromDevice();
 
-        if ($fingerprints === null) {
-            $this->error('Failed to fetch fingerprints from BioStation.');
-            return 1;
-        }
+            if ($fingerprints === null) {
+                $this->error("[tenant:{$tenant->slug}] Failed to fetch fingerprints.");
+                return;
+            }
 
-        // مثال: تحديث البصمات في النظام بناءً على البيانات المسترجعة
-        foreach ($fingerprints as $fingerprintData) {
-            // افترض أن البيانات تحتوي على 'finger_id' و 'template' و 'user_id'
-            $fingerprint = \App\Models\Fingerprint::updateOrCreate(
-                ['finger_id' => $fingerprintData['finger_id']],
-                ['template' => $fingerprintData['template'], 'user_id' => $fingerprintData['user_id']]
-            );
+            foreach ($fingerprints as $fingerprintData) {
+                // Fingerprint is tenant-scoped; creating hook auto-fills tenant_id.
+                \App\Models\Fingerprint::updateOrCreate(
+                    ['finger_id' => $fingerprintData['finger_id']],
+                    ['template' => $fingerprintData['template'], 'user_id' => $fingerprintData['user_id']]
+                );
+            }
 
-            $this->info("Fingerprint {$fingerprint->finger_id} synchronized.");
-        }
+            $settings->biostation_last_sync = Carbon::now();
+            $settings->save();
 
-        // تحديث وقت التزامن الأخير
-        $settings->biostation_last_sync = Carbon::now();
-        $settings->save();
-
-        $this->info('Synchronization completed successfully.');
+            $this->info("[tenant:{$tenant->slug}] Sync completed.");
+        });
 
         return 0;
     }

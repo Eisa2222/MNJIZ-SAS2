@@ -4,6 +4,7 @@ namespace App\Models\LegalAI;
 
 use App\Enums\LegalAI\AiChatType;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class AiChat extends Model
 {
-    use HasFactory, HasUuids, Cachable;
+    use HasFactory, HasUuids, Cachable, BelongsToTenant;
 
 
     /*

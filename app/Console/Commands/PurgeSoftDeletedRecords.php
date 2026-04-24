@@ -27,23 +27,21 @@ use App\Models\general_setting\SettingsTemplate;
 use App\Models\general_setting\SettingsTypeRulings;
 use App\Models\GeneralSetting\SystemSetting\Settings;
 use App\Models\Hr\Employees\Employees;
+use App\Console\Concerns\IteratesTenants;
 use App\Models\judicial_affairs\Court;
 use App\Models\judicial_affairs\Courtroom;
 use App\Models\judicial_affairs\Document;
 use App\Models\judicial_affairs\Judge;
-use App\Models\judicial_affairs\NoteCommentMention;
-use App\Models\judicial_affairs\Opponent;
-use App\Models\judicial_affairs\PowerOfAttorney;
 use App\Models\judicial_affairs\Project;
-use App\Models\judicial_affairs\ProjectAttachment;
-use App\Models\judicial_affairs\Session;
-use App\Models\judicial_affairs\SessionComment;
-use App\Models\judicial_affairs\SessionCommentMention;
+use App\Models\LegalAffair\Opponent\Opponent;
+use App\Models\LegalAffair\PowerOfAttorney\PowerOfAttorney;
+use App\Models\LegalAffair\Session\Session;
 use App\Models\LitigationStage;
 use App\Models\OperationsCenter\Contract\Contract;
 use App\Models\OperationsCenter\Offer\Offers;
+use App\Models\OrganizationCenter\Tasks\Task\Task;
 use App\Models\Support;
-use App\Models\Task\Task;
+use App\Models\Tenant;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -52,6 +50,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PurgeSoftDeletedRecords extends Command
 {
+    use IteratesTenants;
+
     /**
      * The name and signature of the console command.
      *
@@ -122,35 +122,28 @@ class PurgeSoftDeletedRecords extends Command
      */
     public function handle()
     {
-        // استرجاع الإعدادات المطلوبة بشكل محدد
-        $daysToKeep = $this->getArchiveDeleteDuration();
+        // Per-tenant purge — each tenant has its own archive_delete_duration
+        // setting and its own rows. Running as a global loop would purge
+        // tenant A's records using tenant B's retention policy.
+        $this->perTenant(function (Tenant $tenant) {
+            $daysToKeep = $this->getArchiveDeleteDuration();
 
-        if ($daysToKeep === false) {
-            // $this->error('إعدادات فترة الحذف غير صحيحة أو غير موجودة.');
-            // Log::error('إعدادات فترة الحذف غير صحيحة أو غير موجودة.');
-            return Command::FAILURE;
-        }
-
-        foreach ($this->models as $model) {
-            // التحقق مما إذا كان النموذج يستخدم Trait الخاص بـ SoftDeletes
-            if (!in_array(SoftDeletes::class, class_uses_recursive($model))) {
-                // $this->error("النموذج {$model} لا يستخدم خاصية SoftDeletes.");
-                // Log::warning("النموذج {$model} لا يستخدم خاصية SoftDeletes.");
-                continue;
+            if ($daysToKeep === false) {
+                return;   // no retention configured for this tenant
             }
 
-            try {
-                $this->purgeModel($model, $daysToKeep);
-                // $message = "تم تنظيف السجلات المحذوفة بنعومة القديمة لنموذج {$model}.";
-                // $this->info($message);
-                // Log::info($message);
-            } catch (\Exception $e) {
-                // $errorMessage = "فشل تنظيف السجلات لنموذج {$model}: " . $e->getMessage();
-                // $this->error($errorMessage);
-                // Log::error($errorMessage);
-                // يمكنك اتخاذ إجراءات إضافية هنا إذا لزم الأمر
+            foreach ($this->models as $model) {
+                if (! in_array(SoftDeletes::class, class_uses_recursive($model))) {
+                    continue;
+                }
+
+                try {
+                    $this->purgeModel($model, $daysToKeep);
+                } catch (\Exception $e) {
+                    Log::warning("[tenant:{$tenant->slug}] purge {$model} failed: ".$e->getMessage());
+                }
             }
-        }
+        });
 
         return Command::SUCCESS;
     }

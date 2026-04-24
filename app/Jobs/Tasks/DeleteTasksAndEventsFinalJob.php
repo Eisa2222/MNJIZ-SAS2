@@ -6,6 +6,7 @@ use App\Models\OrganizationCenter\Tasks\Task\Task;
 use App\Models\User;
 use App\Services\MicrosoftGraphBaseService;
 use App\Services\OrganizationCenter\Tasks\Task\TaskService;
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 class DeleteTasksAndEventsFinalJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, TenantAwareJob;
 
     protected $task;
     protected $previousAssignedUser;
@@ -38,6 +39,7 @@ class DeleteTasksAndEventsFinalJob implements ShouldQueue
 
         $this->task = $task;
         $this->previousAssignedUser = $previousAssignedUser;
+        $this->captureTenant();
     }
 
     /**

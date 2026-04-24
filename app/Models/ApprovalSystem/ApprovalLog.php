@@ -3,11 +3,14 @@
 namespace App\Models\ApprovalSystem;
 
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ApprovalLog extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
         'approval_request_id',
         'level',
