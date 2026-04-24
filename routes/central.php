@@ -42,3 +42,21 @@ Route::prefix('webhooks')
     ->group(function () {
         // Moyasar, Stripe, etc. land here — implemented in Phase 5.
     });
+
+/*
+|--------------------------------------------------------------------------
+| Health / liveness / readiness endpoints (Phase 8)
+|--------------------------------------------------------------------------
+| No auth — consumed by load-balancers, container orchestrators, uptime
+| monitors. Returns 200/503 JSON.
+*/
+Route::prefix('health')
+    ->name('health.')
+    ->controller(\App\Http\Controllers\Health\HealthController::class)
+    ->group(function () {
+        Route::get('/',       'overall')->name('overall');
+        Route::get('/db',     'db')->name('db');
+        Route::get('/queue',  'queue')->name('queue');
+        Route::get('/cache',  'cache')->name('cache');
+        Route::get('/ready',  'ready')->name('ready');
+    });

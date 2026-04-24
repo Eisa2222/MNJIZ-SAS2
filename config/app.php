@@ -230,6 +230,12 @@ return [
          * and subscription/payment lifecycle listeners.
          */
         App\Providers\BillingServiceProvider::class,
+
+        /*
+         * Production Observability (Phase 8) — slow-query logger, queue
+         * lifecycle breadcrumbs, failed-job structured logger.
+         */
+        App\Providers\ProductionObservabilityServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
