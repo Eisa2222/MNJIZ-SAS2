@@ -506,8 +506,17 @@ class SessionController extends Controller
     */
     public function sendWhatsappMessage($session)
     {
-        $plaintiffs = DB::table('lawsuit_plaintiffs')->where('lawsuit_id', $session->lawsuit->id)->get();
-        $defendants = DB::table('lawsuit_defendants')->where('lawsuit_id', $session->lawsuit->id)->get();
+        // Defense-in-depth: restrict raw DB reads to current tenant so
+        // a stale $session->lawsuit link can never leak cross-firm rows.
+        $currentTenantId = \App\Tenancy\TenantContext::currentId();
+        $plaintiffs = DB::table('lawsuit_plaintiffs')
+            ->where('lawsuit_id', $session->lawsuit->id)
+            ->where('tenant_id', $currentTenantId)
+            ->get();
+        $defendants = DB::table('lawsuit_defendants')
+            ->where('lawsuit_id', $session->lawsuit->id)
+            ->where('tenant_id', $currentTenantId)
+            ->get();
 
         $customerIds = [];
 

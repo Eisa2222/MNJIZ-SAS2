@@ -6,6 +6,7 @@ namespace App\Models\LegalAffair\Lawsuit\Note;
 use Alkoumi\LaravelHijriDate\Hijri;
 use App\Models\LegalAffair\Lawsuit\Lawsuit;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class LawsuitNote extends Model
 {
-    use HasFactory, LogsActivity, SoftDeletes;
+    use HasFactory, LogsActivity, SoftDeletes, BelongsToTenant;
 
     protected $fillable = [
         'lawsuit_id',

@@ -14,6 +14,7 @@ use App\Models\Hr\Employees\Employees;
 use App\Models\judicial_affairs\Project;
 use App\Models\LegalAffair\Lawsuit\Lawsuit;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
@@ -25,7 +26,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Session extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, Cachable;
+    use HasFactory, SoftDeletes, LogsActivity, Cachable, BelongsToTenant;
 
     /*
     |============================================================================

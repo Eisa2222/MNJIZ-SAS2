@@ -15,6 +15,7 @@ use App\Models\OperationsCenter\Contract\Contract;
 use App\Models\Survey\Survey;
 use App\Services\SMS\SurveySmsService;
 use App\Services\SurveyService\SurveyService;
+use App\Tenancy\Support\TenantStorage;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\UploadedFile;
@@ -85,7 +86,15 @@ class SessionCompletionService
 
     private function storeAttachment(?UploadedFile $file, string $folder): ?string
     {
-        return $file ? $file->store("uploads/{$folder}", 'public') : null;
+        if (! $file) {
+            return null;
+        }
+
+        // tenants/{tenant_id}/legal-affair/sessions/{folder}
+        return $file->store(
+            TenantStorage::path("legal-affair/sessions/{$folder}"),
+            'public'
+        );
     }
 
     private function validateSessionCompletion(Session $session): void

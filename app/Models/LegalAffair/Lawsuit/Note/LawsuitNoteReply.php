@@ -3,6 +3,7 @@
 namespace App\Models\LegalAffair\Lawsuit\Note;
 
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Activitylog\Traits\LogsActivity; // استيراد LogsActivity trait
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class LawsuitNoteReply extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, BelongsToTenant;
 
     protected $fillable = [
         'lawsuit_note_id',

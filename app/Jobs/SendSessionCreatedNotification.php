@@ -2,50 +2,45 @@
 
 namespace App\Jobs;
 
-use App\Models\User;
 use App\Models\GeneralSetting\SystemSetting\Settings;
+use App\Models\User;
 use App\Services\EmailService;
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Dispatched when a new court session is created. Runs on the queue, so
+ * TenantAwareJob captures the dispatcher's tenant at construction time and
+ * RestoreTenantContext middleware re-enters that tenant before handle()
+ * runs — otherwise User::find() would query the global users pool and
+ * potentially notify another firm's staff.
+ */
 class SendSessionCreatedNotification implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, TenantAwareJob;
 
     protected $assignedEmployees;
     protected $taskData;
     protected $session;
 
-    /**
-     * Create a new job instance.
-     *
-     * @param array $assignedEmployees
-     * @param array $taskData
-     * @param \App\Models\Session $session
-     */
     public function __construct(array $assignedEmployees, $taskData, $session)
     {
         $this->assignedEmployees = $assignedEmployees;
-        $this->taskData = $taskData;
-        $this->session = $session;
+        $this->taskData          = $taskData;
+        $this->session           = $session;
+
+        $this->captureTenant();
     }
 
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
-    public function handle()
+    public function handle(): void
     {
-        // Fetch settings once to avoid multiple queries
-        $settings = Settings::find(1);
+        $settings = Settings::first();
 
-        // Check if main_email is set
-        if (empty($settings->main_email)) {
-            // Log the error and optionally notify an administrator
+        if (empty($settings?->main_email)) {
             \Log::error('Main email is not set in settings.');
             return;
         }
@@ -53,25 +48,25 @@ class SendSessionCreatedNotification implements ShouldQueue
         $emailService = app(EmailService::class);
 
         foreach ($this->assignedEmployees as $employeeId) {
+            // User is tenant-scoped via global scope; find() here respects
+            // the restored tenant context from the middleware.
             $user = User::find($employeeId);
+
             if ($user) {
-                // Send notification via EmailService
-                $emailService->sendSessionCreatedNotification($user, $settings, $this->taskData, $this->session);
+                $emailService->sendSessionCreatedNotification(
+                    $user,
+                    $settings,
+                    $this->taskData,
+                    $this->session
+                );
             } else {
-                \Log::warning("User with ID {$employeeId} not found.");
+                \Log::warning("User with ID {$employeeId} not found in tenant context.");
             }
         }
     }
 
-    /**
-     * Handle a job failure.
-     *
-     * @param \Exception $exception
-     * @return void
-     */
-    public function failed(\Exception $exception)
+    public function failed(\Throwable $exception): void
     {
-        // Log the failure
-        \Log::error('NotifyAssignedEmployees Job failed: ' . $exception->getMessage());
+        \Log::error('SendSessionCreatedNotification failed: ' . $exception->getMessage());
     }
 }

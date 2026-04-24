@@ -3,12 +3,13 @@
 namespace App\Models\LegalAffair\Opponent;
 
 
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class OpponentAuthorization extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     protected $table = 'opponent_authorizations'; // اسم الجدول الجديد
 

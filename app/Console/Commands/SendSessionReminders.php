@@ -2,132 +2,98 @@
 
 namespace App\Console\Commands;
 
+use App\Console\Concerns\IteratesTenants;
+use App\Models\LegalAffair\Session\Session;
+use App\Models\Tenant;
 use App\Services\SessionReminderService;
-use Illuminate\Console\Command;
-use App\Models\judicial_affairs\Session;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Fires every minute via Kernel::schedule('sessions:send-reminders').
+ *
+ * Iterates tenants so each firm sees ONLY its own sessions — a global loop
+ * here would leak one firm's docket into another's staff inbox.
+ *
+ * NOTE: The prior version imported App\Models\judicial_affairs\Session which
+ * no longer exists in the codebase. Restored to the real namespace.
+ */
 class SendSessionReminders extends Command
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Signature
-    |--------------------------------------------------------------------------
-    */
-    // protected $signature = 'sessions:send-reminders';
+    use IteratesTenants;
 
-    // فى SendSessionReminders.php
     protected $signature = 'sessions:send-reminders {--force-objection : Send objection reminders immediately}';
 
+    protected $description = 'Send reminders (SMS and Email) to assigned employees 30 minutes before the session time (per tenant)';
 
-    /*
-    |--------------------------------------------------------------------------
-    | Description
-    |--------------------------------------------------------------------------
-    */
-    protected $description = 'Send reminders (SMS and Email) to assigned employees 30 minutes before the session time';
-
-    /*
-    |--------------------------------------------------------------------------
-    | Reminder Services
-    |--------------------------------------------------------------------------
-    */
-    protected $reminderService;
-
-    /*
-    |--------------------------------------------------------------------------
-    | Construct
-    |--------------------------------------------------------------------------
-    */
-    public function __construct(SessionReminderService $reminderService)
+    public function __construct(protected SessionReminderService $reminderService)
     {
         parent::__construct();
-        $this->reminderService = $reminderService;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Handle
-    |--------------------------------------------------------------------------
-    */
-    public function handle()
+    public function handle(): int
     {
-        try {
-            $now = Carbon::now();
-            $targetTimeStart = $now->copy()->addMinutes(30);
-            $targetTimeEnd = $now->copy()->addMinutes(31);
-
-            // استرجاع الجلسات المطابقة للمعايير
-            $sessions = Session::whereDate('session_date', $targetTimeStart->format('Y-m-d'))
-                ->whereTime('session_time', '>=', $targetTimeStart->format('H:i:s'))
-                ->whereTime('session_time', '<=', $targetTimeEnd->format('H:i:s'))
-                ->whereNull('reminder_sent_at')
-                ->get();
-
-            $this->info("Found {$sessions->count()} sessions to send reminders for.");
-
-            $totalSent = 0;
-            $totalFailed = 0;
-
-            foreach ($sessions as $session) {
-                $results = $this->reminderService->sendAllReminders($session);
-
-                if ($results['success']) {
-                    $totalSent++;
-                    $this->info("✓ Successfully sent reminders for session: {$session->session_name}");
-
-                    $session->reminder_sent_at = Carbon::now();
-                    $session->save();
-                } else {
-                    $totalFailed++;
-                    $this->error("✗ Failed to send reminders for session: {$session->session_name}");
-                }
-
-                // تفاصيل النتائج لكل قناة
-                if (!empty($results['sms']['recipients'])) {
-                    $this->line("  - SMS sent to " . count($results['sms']['recipients']) . " recipients");
-                }
-                if (!empty($results['email']['recipients'])) {
-                    $this->line("  - Email sent to " . count($results['email']['recipients']) . " recipients");
-                }
-                if (!empty($results['sms']['failed']) || !empty($results['email']['failed'])) {
-                    $this->line("  - Failed: SMS (" . count($results['sms']['failed']) . "), Email (" . count($results['email']['failed']) . ")");
-                }
+        $this->perTenant(function (Tenant $tenant) {
+            try {
+                $this->runForTenant($tenant);
+            } catch (\Throwable $e) {
+                Log::error('SendSessionReminders failed for tenant', [
+                    'tenant_id' => $tenant->id,
+                    'tenant'    => $tenant->slug,
+                    'message'   => $e->getMessage(),
+                ]);
+                $this->error("[tenant:{$tenant->slug}] خطأ: {$e->getMessage()}");
             }
+        });
 
-            /*===========================================================
-            | ② فحص وإرسال تذكير «آخر مهلة للاعتراض» (‑30 دقيقة)
-            *==========================================================*/
-            
-            $objectionSessions = Session::where('summary_report_status', 'حكم موضوعي')
-                ->whereNotNull('last_objection_deadline')
-                ->whereNull('objection_reminder_sent_at')
-                ->get();
+        return self::SUCCESS;
+    }
 
-            $this->info("Found {$objectionSessions->count()} objection‑deadline sessions.");
+    private function runForTenant(Tenant $tenant): void
+    {
+        $now             = Carbon::now();
+        $targetTimeStart = $now->copy()->addMinutes(30);
+        $targetTimeEnd   = $now->copy()->addMinutes(31);
 
-            foreach ($objectionSessions as $session) {
-                // Only send if 30 minutes remain (internal check)
-                $this->reminderService->maybeSendObjectionReminder($session);
+        // Every query below is TenantScoped by BelongsToTenant on Session.
+        $sessions = Session::whereDate('session_date', $targetTimeStart->format('Y-m-d'))
+            ->whereTime('session_time', '>=', $targetTimeStart->format('H:i:s'))
+            ->whereTime('session_time', '<=', $targetTimeEnd->format('H:i:s'))
+            ->whereNull('reminder_sent_at')
+            ->get();
+
+        if ($sessions->isNotEmpty()) {
+            $this->info("[tenant:{$tenant->slug}] Found {$sessions->count()} session(s) to remind.");
+        }
+
+        $totalSent   = 0;
+        $totalFailed = 0;
+
+        foreach ($sessions as $session) {
+            $results = $this->reminderService->sendAllReminders($session);
+
+            if ($results['success'] ?? false) {
+                $totalSent++;
+                $session->reminder_sent_at = Carbon::now();
+                $session->save();
+            } else {
+                $totalFailed++;
             }
-            
-            /*===========================================================
-            | ② فحص وإرسال تذكير «آخر مهلة للاعتراض» (‑30 دقيقة)
-            *==========================================================*/
+        }
 
-            $this->info("Session reminders processing completed.");
-            $this->info("Summary: Sent: {$totalSent}, Failed: {$totalFailed}, Total: {$sessions->count()}");
+        // Objection-deadline reminders (tenant-scoped).
+        $objectionSessions = Session::where('summary_report_status', 'حكم موضوعي')
+            ->whereNotNull('last_objection_deadline')
+            ->whereNull('objection_reminder_sent_at')
+            ->get();
 
-            return 0;
-        } catch (\Exception $e) {
-            Log::error('An unexpected error occurred in SendSessionReminders', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
+        foreach ($objectionSessions as $session) {
+            $this->reminderService->maybeSendObjectionReminder($session);
+        }
 
-            $this->error('An error occurred while processing the session reminders: ' . $e->getMessage());
-            return 1;
+        if ($totalSent + $totalFailed > 0) {
+            $this->info("[tenant:{$tenant->slug}] Summary — sent: {$totalSent}, failed: {$totalFailed}");
         }
     }
 }

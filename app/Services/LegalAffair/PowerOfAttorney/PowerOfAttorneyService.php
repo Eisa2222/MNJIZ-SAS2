@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use App\Tenancy\Support\TenantStorage;
 
 class PowerOfAttorneyService
 {
@@ -154,7 +155,8 @@ class PowerOfAttorneyService
     private function handleFileUpload($file): ?string
     {
         if ($file) {
-            return $file->store('power_attorneys', 'public');
+            // tenants/{tenant_id}/legal-affair/power-of-attorneys
+            return $file->store(TenantStorage::path('legal-affair/power-of-attorneys'), 'public');
         }
         return null;
     }
@@ -166,8 +168,8 @@ class PowerOfAttorneyService
             if ($powerAttorney->file_attachment) {
                 Storage::disk('public')->delete($powerAttorney->file_attachment);
             }
-            // رفع الملف الجديد
-            return $file->store('power_attorneys', 'public');
+            // رفع الملف الجديد تحت مسار tenant-prefixed
+            return $file->store(TenantStorage::path('legal-affair/power-of-attorneys'), 'public');
         }
         return null;
     }

@@ -10,6 +10,7 @@ use App\Models\OperationsCenter\Contract\Contract;
 use App\Models\OperationsCenter\ExceptionalContract\ExceptionalContract;
 use App\Models\OrganizationCenter\Tasks\Task\Task;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use App\Traits\HijriDateConversion;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +20,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Project extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, HijriDateConversion;
+    use HasFactory, SoftDeletes, LogsActivity, HijriDateConversion, BelongsToTenant;
     /*
     |============================================================================
     |============================================================================

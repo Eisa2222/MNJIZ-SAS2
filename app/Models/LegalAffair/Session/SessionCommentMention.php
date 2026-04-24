@@ -4,12 +4,13 @@ namespace App\Models\LegalAffair\Session;
 
 
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class SessionCommentMention extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     protected $fillable = ['session_comment_id', 'mentioner_user_id', 'mentioned_user_id'];
 

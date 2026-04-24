@@ -4,6 +4,7 @@ namespace App\Models\LegalAffair\Session;
 
 
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SessionComment extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, BelongsToTenant;
     // protected $dates = ['deleted_at'];
     protected $fillable = [
         'session_id',

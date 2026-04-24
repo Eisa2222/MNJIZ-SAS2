@@ -20,6 +20,7 @@ use App\Models\LegalAffair\Session\Session;
 use App\Models\Memo;
 use App\Models\OrganizationCenter\Tasks\Task\Task;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,7 +30,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Lawsuit extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, Cachable;
+    use HasFactory, SoftDeletes, LogsActivity, Cachable, BelongsToTenant;
 
     /*
     |============================================================================

@@ -35,6 +35,7 @@ use App\Models\User;
 use App\Services\MicrosoftGraphBaseService;
 use App\Services\MicrosoftTeamsService;
 use App\Services\SMS\SurveySmsService;
+use App\Tenancy\Support\TenantStorage;
 use Beta\Microsoft\Graph\Model\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -237,9 +238,13 @@ class LawsuitController extends Controller
 
 
             // إضافة المدعين إلى جدول lawsuit_plaintiffs
+            // Raw DB::table() here bypasses the Model global scope, so we
+            // MUST add tenant_id explicitly to keep the row tenant-bound.
+            $currentTenantId = \App\Tenancy\TenantContext::currentId();
             foreach ($validatedData['plaintiff_id'] as $plaintiff) {
                 list($plaintiffId, $plaintiffType) = explode('-', $plaintiff); // تقسيم المدعي (معرف - نوع)
                 DB::table('lawsuit_plaintiffs')->insert([
+                    'tenant_id' => $currentTenantId,
                     'lawsuit_id' => $lawsuit->id,
                     'plaintiff_id' => $plaintiffId,
                     'plaintiff_type' => $plaintiffType == 'customer' ? 'App\Models\OperationsCenter\Customer' : 'App\Models\LegalAffair\Opponent',
@@ -252,6 +257,7 @@ class LawsuitController extends Controller
             foreach ($validatedData['defendant_id'] as $defendant) {
                 list($defendantId, $defendantType) = explode('-', $defendant); // تقسيم المدعى عليه (معرف - نوع)
                 DB::table('lawsuit_defendants')->insert([
+                    'tenant_id' => $currentTenantId,
                     'lawsuit_id' => $lawsuit->id,
                     'defendant_id' => $defendantId,
                     'defendant_type' => $defendantType == 'customer' ? 'App\Models\OperationsCenter\Customer' : 'App\Models\LegalAffair\Opponent',
@@ -403,8 +409,13 @@ class LawsuitController extends Controller
         $mergedList = $opponents->concat($customers);
 
         // جلب المدعين والمدعى عليهم الحاليين
+        // Defense-in-depth: even though $lawsuit is already tenant-scoped,
+        // these raw DB::table() queries bypass the scope — we add an explicit
+        // tenant_id filter so a leak can't happen if the parent row assumption breaks.
+        $currentTenantId = \App\Tenancy\TenantContext::currentId();
         $existingPlaintiffs = DB::table('lawsuit_plaintiffs')
             ->where('lawsuit_id', $id)
+            ->where('tenant_id', $currentTenantId)
             ->get()
             ->map(function ($plaintiff) {
                 return $plaintiff->plaintiff_id . '-' . $plaintiff->plaintiff_type;
@@ -412,6 +423,7 @@ class LawsuitController extends Controller
 
         $existingDefendants = DB::table('lawsuit_defendants')
             ->where('lawsuit_id', $id)
+            ->where('tenant_id', $currentTenantId)
             ->get()
             ->map(function ($defendant) {
                 return $defendant->defendant_id . '-' . $defendant->defendant_type;
@@ -495,10 +507,18 @@ class LawsuitController extends Controller
 
 
         // تحديث المدعين في جدول lawsuit_plaintiffs
-        DB::table('lawsuit_plaintiffs')->where('lawsuit_id', $lawsuit->id)->delete(); // حذف المدعين الحاليين
+        // Raw DB bypasses global scope — restrict delete+insert to this tenant
+        // so we can never wipe or add a row belonging to another firm.
+        $currentTenantId = \App\Tenancy\TenantContext::currentId();
+
+        DB::table('lawsuit_plaintiffs')
+            ->where('lawsuit_id', $lawsuit->id)
+            ->where('tenant_id', $currentTenantId)
+            ->delete();
         foreach ($validatedData['plaintiff_id'] as $plaintiff) {
             list($plaintiffId, $plaintiffType) = explode('-', $plaintiff); // تقسيم المدعي (معرف - نوع)
             DB::table('lawsuit_plaintiffs')->insert([
+                'tenant_id' => $currentTenantId,
                 'lawsuit_id' => $lawsuit->id,
                 'plaintiff_id' => $plaintiffId,
                 'plaintiff_type' => $plaintiffType == 'customer' ? 'App\Models\OperationsCenter\Customer' : 'App\Models\LegalAffair\Opponent',
@@ -508,10 +528,14 @@ class LawsuitController extends Controller
         }
 
         // تحديث المدعى عليهم في جدول lawsuit_defendants
-        DB::table('lawsuit_defendants')->where('lawsuit_id', $lawsuit->id)->delete(); // حذف المدعى عليهم الحاليين
+        DB::table('lawsuit_defendants')
+            ->where('lawsuit_id', $lawsuit->id)
+            ->where('tenant_id', $currentTenantId)
+            ->delete();
         foreach ($validatedData['defendant_id'] as $defendant) {
             list($defendantId, $defendantType) = explode('-', $defendant); // تقسيم المدعى عليه (معرف - نوع)
             DB::table('lawsuit_defendants')->insert([
+                'tenant_id' => $currentTenantId,
                 'lawsuit_id' => $lawsuit->id,
                 'defendant_id' => $defendantId,
                 'defendant_type' => $defendantType == 'customer' ? 'App\Models\OperationsCenter\Customer' : 'App\Models\LegalAffair\Opponent',
@@ -639,7 +663,9 @@ class LawsuitController extends Controller
         ]);
 
         if ($request->hasFile('request_attachment')) {
-            $path = $request->file('request_attachment')->store('attachments', 'public');
+            // Tenant-prefixed path: tenants/{tenant_id}/legal-affair/lawsuits/attachments
+            $path = $request->file('request_attachment')
+                ->store(TenantStorage::path('legal-affair/lawsuits/attachments'), 'public');
             $validated['request_attachment'] = $path;
         }
 

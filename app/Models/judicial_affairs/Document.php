@@ -2,6 +2,7 @@
 
 namespace App\Models\judicial_affairs;
 
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,7 +11,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Document extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, BelongsToTenant;
     protected $dates = ['deleted_at']; 
     protected $fillable = [
         'documentable_id', 'documentable_type', 'file_name', 'file_path', 'file_type',

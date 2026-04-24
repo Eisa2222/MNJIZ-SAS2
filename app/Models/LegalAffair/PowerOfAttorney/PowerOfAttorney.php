@@ -9,6 +9,7 @@ use App\Models\OperationsCenter\Customer\Customers;
 use App\Models\Hr\Employees\Employees;
 use App\Models\LegalAffair\Lawsuit\Lawsuit;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use App\Traits\HijriDateConversion;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +20,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class PowerOfAttorney extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, Cachable, HijriDateConversion;
+    use HasFactory, SoftDeletes, LogsActivity, Cachable, HijriDateConversion, BelongsToTenant;
 
     /*
     |============================================================================

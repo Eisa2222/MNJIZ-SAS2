@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\LegalAffair\Lawsuit\Lawsuit;
 use App\Models\LegalAffair\Session\Session;
 use App\Services\LegalAffair\Session\SessionCompletion\SessionCompletionService;
+use App\Tenancy\Support\TenantStorage;
 
 class SessionCompletionController extends Controller
 {
@@ -187,7 +188,7 @@ class SessionCompletionController extends Controller
                     Storage::disk('public')->delete($session->session_control_attached);
                 }
                 $sessionFile = $request->file('session_control_attached');
-                $filePaths['session_control_attached'] = $sessionFile->store('uploads/sessions', 'public');
+                $filePaths['session_control_attached'] = $sessionFile->store(TenantStorage::path('legal-affair/sessions/control'), 'public');
             }
 
             if ($request->hasFile('rule_attached')) {
@@ -195,7 +196,7 @@ class SessionCompletionController extends Controller
                     Storage::disk('public')->delete($session->rule_attached);
                 }
                 $ruleFile = $request->file('rule_attached');
-                $filePaths['rule_attached'] = $ruleFile->store('uploads/rules', 'public');
+                $filePaths['rule_attached'] = $ruleFile->store(TenantStorage::path('legal-affair/sessions/rules'), 'public');
             }
 
             $validated['session_control_attached'] = $filePaths['session_control_attached'] ?? $session->session_control_attached;
@@ -371,7 +372,7 @@ class SessionCompletionController extends Controller
                     Storage::disk('public')->delete($session->session_control_attached);
                 }
                 $sessionFile = $request->file('session_control_attached');
-                $filePaths['session_control_attached'] = $sessionFile->store('uploads/sessions', 'public');
+                $filePaths['session_control_attached'] = $sessionFile->store(TenantStorage::path('legal-affair/sessions/control'), 'public');
             }
 
             if ($request->hasFile('rule_attached')) {
@@ -379,7 +380,7 @@ class SessionCompletionController extends Controller
                     Storage::disk('public')->delete($session->rule_attached);
                 }
                 $ruleFile = $request->file('rule_attached');
-                $filePaths['rule_attached'] = $ruleFile->store('uploads/rules', 'public');
+                $filePaths['rule_attached'] = $ruleFile->store(TenantStorage::path('legal-affair/sessions/rules'), 'public');
             }
 
             $validated['session_control_attached'] = $filePaths['session_control_attached'] ?? $session->session_control_attached;

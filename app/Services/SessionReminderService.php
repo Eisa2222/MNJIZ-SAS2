@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\judicial_affairs\Session;
+use App\Models\LegalAffair\Session\Session;
 use App\Models\GeneralSetting\SystemSetting\Settings;
 use App\Models\MessageLog;
 use App\Helpers\General;
