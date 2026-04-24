@@ -4,6 +4,7 @@ namespace App\Jobs\Mail;
 
 use App\Models\User;
 use App\Services\EmailService;
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 
 class SendTechnicalSupportEmailNotificationJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, TenantAwareJob;
 
     protected $user;
     protected $data;
@@ -32,6 +33,7 @@ class SendTechnicalSupportEmailNotificationJob implements ShouldQueue
         $this->user = $user;
         $this->data = $data;
         $this->type = $type;
+        $this->captureTenant();
     }
 
 

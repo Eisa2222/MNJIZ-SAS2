@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\OrganizationCenter\Tasks\Task\Task;
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,7 +11,7 @@ use Illuminate\Notifications\Messages\DatabaseMessage;
 
 class TaskCreatedNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, TenantAwareJob;
 
     protected $task;
 
@@ -23,6 +24,7 @@ class TaskCreatedNotification extends Notification implements ShouldQueue
     public function __construct(Task $task)
     {
         $this->task = $task;
+        $this->captureTenant();
     }
 
     /**

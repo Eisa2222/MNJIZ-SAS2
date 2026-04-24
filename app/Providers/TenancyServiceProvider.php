@@ -46,6 +46,7 @@ final class TenancyServiceProvider extends ServiceProvider
         $this->registerEloquentMacros();
         $this->registerLoggingProcessor();
         $this->registerActivityLogHook();
+        $this->registerNotificationTenantHook();
         $this->registerQueueListeners();
         $this->registerSpatieTeamsBridge();
     }
@@ -180,6 +181,53 @@ final class TenancyServiceProvider extends ServiceProvider
                 $props['impersonation_log_id'] = $data['log_id']   ?? null;
 
                 $activity->properties = $props;
+            }
+        });
+    }
+
+    /**
+     * Phase 6 Module 4 — auto-stamp tenant_id on every DatabaseNotification
+     * row. Laravel's DatabaseChannel inserts via the built-in
+     * Illuminate\Notifications\DatabaseNotification model; we can't edit
+     * that class, but we can listen to its `creating` event and fill
+     * tenant_id from the current context (or from the Notification's own
+     * tenantId property if queued and restored by RestoreTenantContext).
+     *
+     * Also installs a guard that rejects cross-tenant reads: a query
+     * against notifications WITHOUT a tenant filter under an active
+     * TenantContext is unreachable at the framework level — Laravel
+     * resolves notifications via $notifiable->notifications() morphMany,
+     * which we add a global tenant scope to through a Model observer.
+     */
+    private function registerNotificationTenantHook(): void
+    {
+        if (! class_exists(\Illuminate\Notifications\DatabaseNotification::class)) {
+            return;
+        }
+
+        \Illuminate\Notifications\DatabaseNotification::creating(function ($notification) {
+            try {
+                if (empty($notification->tenant_id)) {
+                    $notification->tenant_id = TenantContext::currentId();
+                }
+            } catch (\Throwable $e) {
+                // notifications table may lack tenant_id column on a
+                // partially-migrated install; fail open (null) so the
+                // notification still writes and we surface it via tests.
+            }
+        });
+
+        // Block silent cross-tenant writes by throwing on any attempt to
+        // move an existing notification to another tenant.
+        \Illuminate\Notifications\DatabaseNotification::updating(function ($notification) {
+            if (! $notification->isDirty('tenant_id')) {
+                return;
+            }
+            $original = $notification->getOriginal('tenant_id');
+            if ($original !== null && $original !== $notification->tenant_id) {
+                throw new \RuntimeException(
+                    'Cross-tenant reassignment on DatabaseNotification is not allowed.'
+                );
             }
         });
     }

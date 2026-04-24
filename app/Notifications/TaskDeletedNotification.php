@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use App\Models\Task\Task;
@@ -10,13 +11,14 @@ use Illuminate\Notifications\Messages\DatabaseMessage;
 
 class TaskDeletedNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, TenantAwareJob;
 
     protected $task;
 
     public function __construct(Task $task)
     {
         $this->task = $task;
+        $this->captureTenant();
     }
 
     public function via($notifiable)

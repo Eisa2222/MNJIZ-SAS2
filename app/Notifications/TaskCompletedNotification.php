@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\OrganizationCenter\Tasks\Task\Task;
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use App\Models\User;
@@ -11,7 +12,7 @@ use Illuminate\Notifications\Messages\DatabaseMessage;
 
 class TaskCompletedNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, TenantAwareJob;
 
     protected $task;
     protected $user;
@@ -43,6 +44,7 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
         }
 
         $this->isCompleted = $isCompleted;
+        $this->captureTenant();
     }
 
     /**

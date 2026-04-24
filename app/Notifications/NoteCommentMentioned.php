@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -9,7 +10,7 @@ use Illuminate\Notifications\Notification;
 
 class NoteCommentMentioned extends Notification
 {
-    use Queueable;
+    use Queueable, TenantAwareJob;
 
     private $reply;
     private $mentioner;
@@ -24,6 +25,7 @@ class NoteCommentMentioned extends Notification
         $this->mentioner = $mentioner;
         $this->userId = $userId;
         $this->note = $note;
+        $this->captureTenant();
     }
 
     /**

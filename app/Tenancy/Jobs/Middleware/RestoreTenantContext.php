@@ -27,7 +27,7 @@ final class RestoreTenantContext
 {
     public function handle(object $job, \Closure $next): mixed
     {
-        $tenantId = $job->tenantId ?? null;
+        $tenantId = $this->resolveTenantId($job);
         $tenant   = null;
 
         if ($tenantId) {
@@ -42,5 +42,30 @@ final class RestoreTenantContext
         } finally {
             TenantContext::forget();
         }
+    }
+
+    /**
+     * Resolve tenantId from whatever job shape was handed to us.
+     *
+     * Cases:
+     *   1. Plain Job using TenantAwareJob → $job->tenantId
+     *   2. Queued Notification wrapper (SendQueuedNotifications) →
+     *      $job->notification->tenantId (set by Notification constructor)
+     */
+    private function resolveTenantId(object $job): ?int
+    {
+        // Case 1: direct Job (has TenantAwareJob trait).
+        if (property_exists($job, 'tenantId') && $job->tenantId !== null) {
+            return (int) $job->tenantId;
+        }
+
+        // Case 2: Laravel wraps queued notifications in SendQueuedNotifications.
+        if (isset($job->notification) && is_object($job->notification)
+            && property_exists($job->notification, 'tenantId')
+            && $job->notification->tenantId !== null) {
+            return (int) $job->notification->tenantId;
+        }
+
+        return null;
     }
 }

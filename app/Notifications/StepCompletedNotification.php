@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\OrganizationCenter\Tasks\TaskStep\TaskStep;
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,7 +11,7 @@ use Illuminate\Notifications\Messages\DatabaseMessage;
 
 class StepCompletedNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, TenantAwareJob;
 
     protected $step;
 
@@ -23,6 +24,7 @@ class StepCompletedNotification extends Notification implements ShouldQueue
     public function __construct(TaskStep $step)
     {
         $this->step = $step;
+        $this->captureTenant();
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Tenancy\Concerns\TenantAwareJob;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow; // تم التغيير هنا
@@ -11,7 +12,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 
 class CommentMentioned extends Notification implements ShouldBroadcast // تم التغيير هنا
 {
-    use Queueable;
+    use Queueable, TenantAwareJob;
 
     private $comment;
     private $mentioner;
@@ -24,6 +25,7 @@ class CommentMentioned extends Notification implements ShouldBroadcast // تم �
         $this->comment      = $comment;
         $this->mentioner    = $mentioner;
         $this->userId       = $userId;
+        $this->captureTenant();
     }
 
     public function via($notifiable)
