@@ -2,48 +2,35 @@
 
 namespace App\Console\Commands\Hr\Leave;
 
-use Illuminate\Console\Command;
-use App\Models\Hr\Employees\Employees;
+use App\Console\Concerns\IteratesTenants;
 use App\Models\general_setting\SettingsLeaveType;
+use App\Models\Hr\Employees\Employees;
 use App\Models\Hr\LeaveBalance;
 use App\Models\Hr\LeaveBalanceLog;
+use App\Models\Tenant;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
 class DailyLeaveAccrualCommand extends Command
 {
+    use IteratesTenants;
 
-    /*
-    |--------------------------------------------------------------------------
-    | Command Signature
-    |--------------------------------------------------------------------------
-    */
     protected $signature = 'leave:daily-accrual';
+    protected $description = 'Accrue daily leave balances + end-of-year carry-forward for every active tenant.';
 
-    /*
-    |--------------------------------------------------------------------------
-    | Command Description
-    |--------------------------------------------------------------------------
-    */
-    protected $description = 'Daily leave accrual with automatic year-end carry forward';
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Main Handle Method  
-    |--------------------------------------------------------------------------
-    */
-    public function handle()
+    public function handle(): int
     {
-        $today = Carbon::today();
-        // $today = Carbon::createFromDate(2025, 1, 1); //For Testing purposes .
-        $currentYear = $today->year;
-        $previousYear = $currentYear - 1;
-        $isNewYear = $today->month == 1 && $today->day == 1;
+        return $this->perTenant(function (Tenant $tenant) {
+            $today        = Carbon::today();
+            $currentYear  = $today->year;
+            $previousYear = $currentYear - 1;
+            $isNewYear    = $today->month == 1 && $today->day == 1;
 
-        try {
             DB::transaction(function () use ($today, $currentYear, $previousYear, $isNewYear) {
-
+                // SettingsLeaveType is currently a shared/global lookup — no
+                // tenant_id. If a tenant has overridden types, they'd need a
+                // per-tenant copy (Phase 7 migration concern).
                 $carryForwardableLeaveTypes = SettingsLeaveType::where('is_carry_forwardable', true)
                     ->where('status', 'active')
                     ->whereNotNull('days')
@@ -60,11 +47,7 @@ class DailyLeaveAccrualCommand extends Command
 
                 $this->processDailyAccrual($carryForwardableLeaveTypes, $today, $currentYear);
             });
-        } catch (\Exception $e) {
-            return 1;
-        }
-
-        return 0;
+        });
     }
 
 

@@ -5,6 +5,7 @@ namespace App\Models\Hr\Advances;
 use App\Enums\Hr\Advance\AdvanceStatus;
 use App\Enums\Hr\Advance\AdvanceType;
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use App\Traits\ApprovalWorkflow\HasApprovalWorkflow;
 use Carbon\Carbon;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
@@ -16,7 +17,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Advance extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, Cachable, HasApprovalWorkflow;
+    use HasFactory, SoftDeletes, LogsActivity, Cachable, HasApprovalWorkflow, BelongsToTenant;
 
     /*
     |============================================================================

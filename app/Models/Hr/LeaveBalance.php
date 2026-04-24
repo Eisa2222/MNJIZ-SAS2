@@ -5,13 +5,14 @@ namespace App\Models\Hr;
 use App\Models\general_setting\SettingsLeaveType;
 use App\Models\Hr\Employees\Employees;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LeaveBalance extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, BelongsToTenant;
 
     protected $table = 'leave_balances';
 

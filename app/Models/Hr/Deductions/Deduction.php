@@ -5,6 +5,7 @@ namespace App\Models\Hr\Deductions;
 use App\Enums\Hr\Deduction\DeductionStatus;
 use App\Enums\Hr\Deduction\DeductionType;
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use App\Traits\ApprovalWorkflow\HasApprovalWorkflow;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,7 +24,7 @@ class Deduction extends Model
     |============================================================================
     */
 
-    use HasFactory, SoftDeletes, LogsActivity, HasApprovalWorkflow;
+    use HasFactory, SoftDeletes, LogsActivity, HasApprovalWorkflow, BelongsToTenant;
     // use Cachable;
 
     protected $fillable = [

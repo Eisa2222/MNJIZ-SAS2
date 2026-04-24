@@ -5,6 +5,7 @@ namespace App\Models\ElectronicServices\LeaveRequests;
 use App\Enums\ElectronicServices\LeaveRequests\LeaveRequestsStatus;
 use App\Models\general_setting\SettingsLeaveType;
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use App\Traits\ApprovalWorkflow\HasApprovalWorkflow;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +16,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class LeaveRequest extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, Cachable, HasApprovalWorkflow;
+    use HasFactory, SoftDeletes, LogsActivity, Cachable, HasApprovalWorkflow, BelongsToTenant;
 
     /*
     |============================================================================

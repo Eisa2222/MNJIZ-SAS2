@@ -7,6 +7,7 @@ use App\Models\Hr\Advances\Advance;
 use App\Models\Hr\Deductions\Deduction;
 use App\Models\Hr\Employees\Employees;
 use App\Models\Hr\Rewards\Reward;
+use App\Tenancy\Concerns\BelongsToTenant;
 use App\Traits\ApprovalWorkflow\HasApprovalWorkflow;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class WpsPayroll extends Model
 {
-    use HasFactory, SoftDeletes, HasApprovalWorkflow;
+    use HasFactory, SoftDeletes, HasApprovalWorkflow, BelongsToTenant;
 
     /*
     |============================================================================

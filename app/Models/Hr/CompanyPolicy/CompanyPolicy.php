@@ -5,6 +5,7 @@ namespace App\Models\Hr\CompanyPolicy;
 
 use App\Models\Hr\Employees\Employees;
 use App\Models\PolicyAgreement\UserPolicyAgreement;
+use App\Tenancy\Concerns\BelongsToTenant;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class CompanyPolicy extends Model
 {
-    use HasFactory, LogsActivity, Cachable;
+    use HasFactory, LogsActivity, Cachable, BelongsToTenant;
     /*
     |============================================================================
     |============================================================================

@@ -5,6 +5,7 @@ namespace App\Models\Hr\Rewards;
 use App\Enums\Hr\Reward\RewardStatus;
 use App\Enums\Hr\Reward\RewardType;
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use App\Traits\ApprovalWorkflow\HasApprovalWorkflow;
 use Carbon\Carbon;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
@@ -24,7 +25,7 @@ class Reward extends Model
     |============================================================================
     */
 
-    use HasFactory, SoftDeletes, LogsActivity, HasApprovalWorkflow;
+    use HasFactory, SoftDeletes, LogsActivity, HasApprovalWorkflow, BelongsToTenant;
     use Cachable;
 
     protected $fillable = [

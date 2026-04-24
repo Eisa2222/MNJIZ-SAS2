@@ -3,13 +3,14 @@
 namespace App\Models\Hr\Purchase;
 
 use App\Models\general_setting\SettingsPurchaseCategory;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Purchase extends Model
 {
-    use HasFactory ,SoftDeletes;
+    use HasFactory ,SoftDeletes, BelongsToTenant;
 
     protected $fillable = [
         'item_name',

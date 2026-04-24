@@ -9,6 +9,7 @@ use App\Models\ElectronicServices\Custody\Request\CustodyRequest;
 use App\Models\general_setting\HR\Custody\SettingsAssetCategory;
 use App\Models\general_setting\HR\Custody\SettingsStorageLocation;
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,7 +26,7 @@ class CustodyItem extends Model
     |============================================================================
     */
 
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, BelongsToTenant;
     // use Cachable;
 
     protected $fillable = [

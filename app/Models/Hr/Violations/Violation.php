@@ -9,6 +9,7 @@ use App\Models\Hr\Employees\Employees;
 use App\Models\Hr\Violations\ViolationAppeal;
 use App\Models\Hr\Violations\ViolationExecution;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use DateTime;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,7 +28,7 @@ class Violation extends Model
     |============================================================================
     */
 
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity, BelongsToTenant;
     // use Cachable;
 
     protected $fillable = [

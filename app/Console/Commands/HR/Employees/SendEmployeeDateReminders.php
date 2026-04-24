@@ -2,27 +2,29 @@
 
 namespace App\Console\Commands\HR\Employees;
 
-use Illuminate\Console\Command;
+use App\Console\Concerns\IteratesTenants;
+use App\Models\Tenant;
 use App\Services\HR\Alerts\AlertService;
+use Illuminate\Console\Command;
 
 class SendEmployeeDateReminders extends Command
 {
+    use IteratesTenants;
+
     protected $signature   = 'hr:send-expiry-reminders';
-    protected $description = 'إنشاء تنبيهات عند انتهاء تواريخ الموظفين';
+    protected $description = 'Emit employee-expiry alerts (contract, iqama, license, …) for every active tenant.';
 
     public function __construct(private AlertService $alertService)
     {
         parent::__construct();
     }
 
-    public function handle()
+    public function handle(): int
     {
-        $this->info('بدء فحص تواريخ الموظفين...');
-
-        $totalCreated = $this->alertService->processExpiryReminders();
-
-        $this->info("تم إنشاء {$totalCreated} تنبيه");
-
-        return 0;
+        return $this->perTenant(function (Tenant $tenant) {
+            $this->info("  tenant={$tenant->slug}: scanning employee expiry dates...");
+            $total = $this->alertService->processExpiryReminders();
+            $this->info("  tenant={$tenant->slug}: {$total} alert(s) created.");
+        });
     }
 }

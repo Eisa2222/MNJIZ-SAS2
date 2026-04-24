@@ -6,6 +6,7 @@ namespace App\Models\ElectronicServices\PurchaseRequests;
 use App\Enums\ElectronicServices\PurchaseRequests\PurchaseRequestsStatus;
 use App\Models\general_setting\SettingsPurchaseCategory;
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +16,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class PurchaseRequest extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, Cachable;
+    use HasFactory, SoftDeletes, LogsActivity, Cachable, BelongsToTenant;
 
     /*
     |============================================================================

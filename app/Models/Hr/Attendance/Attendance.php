@@ -5,12 +5,13 @@ namespace App\Models\Hr\Attendance;
 use App\Models\Fingerprint;
 use App\Models\general_setting\SettingsLeaveType;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Attendance extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     protected $fillable = [
         'user_id',

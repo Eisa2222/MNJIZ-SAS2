@@ -5,10 +5,13 @@ namespace App\Models\Hr;
 use App\Models\general_setting\SettingsLeaveType;
 use App\Models\Hr\Employees\Employees;
 use App\Models\User;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 
 class OpeningBalanceAdjustment extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
         'employee_id',
         'leave_type_id',

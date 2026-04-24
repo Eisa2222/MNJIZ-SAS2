@@ -4,6 +4,7 @@ namespace App\Models\ElectronicServices\EditRequest;
 
 use App\Enums\Hr\EditRequest\EditRequestStatus;
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +20,7 @@ class EmployeeEditRequest extends Model
     |============================================================================
     |============================================================================
     */
-    use HasFactory,  LogsActivity;
+    use HasFactory,  LogsActivity, BelongsToTenant;
     use Cachable;
 
 

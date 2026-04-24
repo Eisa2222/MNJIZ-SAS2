@@ -7,6 +7,7 @@ use App\Enums\ElectronicServices\Custody\Requests\CustodyRequestType;
 use App\Enums\ElectronicServices\Custody\Requests\CustodyReturnStatus;
 use App\Models\Hr\Custody\Item\CustodyItem;
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use App\Traits\ApprovalWorkflow\HasApprovalWorkflow;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,7 +25,7 @@ class CustodyRequest extends Model
     |============================================================================
     */
 
-    use HasFactory, SoftDeletes, LogsActivity, HasApprovalWorkflow;
+    use HasFactory, SoftDeletes, LogsActivity, HasApprovalWorkflow, BelongsToTenant;
     // use Cachable;
 
     protected $fillable = [

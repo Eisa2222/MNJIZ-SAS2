@@ -5,6 +5,7 @@ namespace App\Models\ElectronicServices\Custody\Log;
 use App\Enums\ElectronicServices\Custody\Log\CustodyLogAction;
 use App\Models\ElectronicServices\Custody\Request\CustodyRequest;
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,7 +22,7 @@ class CustodyLog extends Model
     |============================================================================
     */
 
-    use HasFactory, LogsActivity;
+    use HasFactory, LogsActivity, BelongsToTenant;
     // use Cachable;
 
     protected $fillable = [
