@@ -8,13 +8,14 @@ use App\Enums\OperationsCenter\Contract\Payment\PaymentMethod;
 use App\Enums\OperationsCenter\Contract\Payment\PaymentStatus;
 use App\Models\Hr\Employees\Employees;
 use App\Models\OperationsCenter\Contract\Contract;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ContractPayment extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, BelongsToTenant;
     /*
     |============================================================================
     |============================================================================

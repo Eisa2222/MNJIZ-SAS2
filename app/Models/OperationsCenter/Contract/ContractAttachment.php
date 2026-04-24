@@ -3,12 +3,13 @@
 namespace App\Models\OperationsCenter\Contract;
 
 use App\Models\OperationsCenter\Contract\Contract;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ContractAttachment extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
     protected $fillable = [
         'contract_id',  // معرف العقد المرتبط

@@ -12,6 +12,7 @@ use App\Models\Hr\Employees\Employees;
 use App\Models\judicial_affairs\Project;
 use App\Models\OperationsCenter\Contract\Payment\ContractPayment;
 use App\Models\OperationsCenter\Offer\Offers;
+use App\Tenancy\Concerns\BelongsToTenant;
 use App\Traits\ApprovalWorkflow\HasApprovalWorkflow;
 use App\Traits\HijriDateConversion;
 use Carbon\Carbon;
@@ -24,7 +25,7 @@ use Spatie\Activitylog\LogOptions;
 
 class Contract extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, HijriDateConversion, HasApprovalWorkflow;
+    use HasFactory, SoftDeletes, LogsActivity, HijriDateConversion, HasApprovalWorkflow, BelongsToTenant;
 
     /*
     |============================================================================

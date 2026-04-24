@@ -7,6 +7,7 @@ use App\Enums\OperationsCenter\Offer\OfferStatus;
 use App\Models\OperationsCenter\Customer\Customers;
 use App\Models\Hr\Employees\Employees;
 use App\Models\OperationsCenter\Contract\Contract;
+use App\Tenancy\Concerns\BelongsToTenant;
 use App\Traits\ApprovalWorkflow\HasApprovalWorkflow;
 use Carbon\Carbon;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
@@ -19,7 +20,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Offers extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity, HasApprovalWorkflow;
+    use HasFactory, SoftDeletes, LogsActivity, HasApprovalWorkflow, BelongsToTenant;
 
     /*
     |============================================================================

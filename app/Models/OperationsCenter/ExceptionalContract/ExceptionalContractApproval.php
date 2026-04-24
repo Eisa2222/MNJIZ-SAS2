@@ -3,12 +3,13 @@
 namespace App\Models\OperationsCenter\ExceptionalContract;
 
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ExceptionalContractApproval extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
     /*
     |============================================================================
     |============================================================================

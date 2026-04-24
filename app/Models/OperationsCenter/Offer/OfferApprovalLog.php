@@ -3,10 +3,13 @@
 namespace App\Models\OperationsCenter\Offer;
 
 use App\Models\Hr\Employees\Employees;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 
 class OfferApprovalLog extends Model
 {
+    use BelongsToTenant;
+
     // اسم الجدول في قاعدة البيانات (إن كان مختلفًا عن الافتراضي)
     protected $table = 'offer_approval_logs';
 
