@@ -63,11 +63,19 @@ Route::middleware('auth:admin')->group(function () {
     });
 
     // Central Settings — super_admin only (platform-wide configuration).
+    // Phase C — `/admin/settings` now serves the new tabbed UI from
+    // SystemSettingController. The Phase 3 single-key Central endpoint
+    // is retained as `admin.settings.legacy.update` for back-compat.
     Route::prefix('settings')->name('admin.settings.')
-        ->middleware('admin.role:super_admin')
+        ->middleware(['admin.role:super_admin', 'apply.system_settings'])
         ->group(function () {
-            Route::get('/',        [CentralSettingController::class, 'index'])->name('index');
-            Route::put('/{key}',   [CentralSettingController::class, 'update'])->name('update');
+            Route::get('/',                [\App\Http\Controllers\Admin\SystemSettingController::class, 'index'])->name('index');
+            Route::put('/',                [\App\Http\Controllers\Admin\SystemSettingController::class, 'update'])->name('update');
+            Route::post('/test-mail',      [\App\Http\Controllers\Admin\SystemSettingController::class, 'testMail'])->name('test-mail');
+            Route::post('/test-moyasar',   [\App\Http\Controllers\Admin\SystemSettingController::class, 'testMoyasar'])->name('test-moyasar');
+
+            // Phase 3 single-key endpoint, retained for back-compat.
+            Route::put('/legacy/{key}',    [CentralSettingController::class, 'update'])->name('legacy.update');
         });
 
     // Subscriptions — read for all admins, mutation for super_admin only.

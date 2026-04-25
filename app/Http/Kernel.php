@@ -133,6 +133,19 @@ class Kernel extends HttpKernel
         */
         'super-admin.guest'      => \App\Http\Middleware\RedirectIfAuthenticatedSuperAdmin::class,
         'admin.legacy.redirect'  => \App\Http\Middleware\RedirectAdminToSuperAdmin::class,
+
+        /*
+        |----------------------------------------------------------------------
+        | Phase C — System Settings runtime config
+        |----------------------------------------------------------------------
+        | apply.system_settings → reads SystemSetting::allAsKeyValue() and
+        |                         Config::set()s mail / moyasar runtime keys.
+        |                         Mounted on the central admin + super-admin
+        |                         route groups (TenancyServiceProvider). Silently
+        |                         no-ops when the table is missing.
+        */
+        'apply.system_settings'  => \App\Http\Middleware\ApplySystemSettings::class,
+
         'impersonating'     => \App\Http\Middleware\ImpersonationContext::class,
     ];
 

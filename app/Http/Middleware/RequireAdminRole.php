@@ -18,16 +18,20 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
  * The `auth:admin` middleware runs FIRST and ensures an admin is signed in;
  * this layer then enforces which roles are allowed.
  *
- * Implementation note: we read from the 'admin' guard explicitly rather than
- * auth()->user() so there's no chance of accidentally accepting a web-guard
- * tenant user whose email happens to match an admin record.
+ * Implementation note: we read from the 'admin' guard first, then fall back
+ * to the Phase B 'super_admin' guard. Both resolve against the same `admins`
+ * table so the role check is identical, but each guard maintains its own
+ * session — accepting either keeps the legacy `/admin/*` routes and the new
+ * `/super-admin/*` routes working from a single shared middleware. The web
+ * guard is intentionally NOT consulted to keep tenant users out.
  */
 final class RequireAdminRole
 {
     public function handle(Request $request, Closure $next, string ...$allowedRoles)
     {
         /** @var Admin|null $admin */
-        $admin = Auth::guard('admin')->user();
+        $admin = Auth::guard('admin')->user()
+            ?? Auth::guard('super_admin')->user();
 
         if (! $admin) {
             throw new HttpException(403, 'Admin authentication required.');
