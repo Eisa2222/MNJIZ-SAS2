@@ -9,6 +9,7 @@ use App\Enums\Billing\PaymentGateway;
 use App\Enums\Billing\PaymentStatus;
 use App\Enums\Billing\SubscriptionStatus;
 use App\Http\Requests\Checkout\ApplyCouponRequest;
+use App\Jobs\CreateTenantJob;
 use App\Models\Coupon;
 use App\Models\Payment;
 use App\Models\Plan;
@@ -22,6 +23,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
@@ -282,6 +284,48 @@ final class CheckoutController extends Controller
             return redirect()->route('checkout.failure', ['reason' => 'invalid']);
         }
 
+        // ── Phase F: dispatch the secondary job that provisions the
+        // owner User + sends the welcome mail with the 48h setup link.
+        // The Tenant + Subscription + Payment rows above are already
+        // committed — this job is for SECONDARY work only.
+        $useSetupLink = (bool) Config::get('tenancy.signup.use_setup_link', false);
+
+        if ($useSetupLink) {
+            // Re-resolve the records we just created (we're outside the
+            // tenant context here so we deliberately bypass scopes).
+            $createdTenant = Tenant::query()
+                ->where('name', $companyName !== '' ? $companyName : $ownerEmail)
+                ->first();
+
+            if ($createdTenant) {
+                $createdSub = Subscription::query()->withoutGlobalScopes()
+                    ->where('tenant_id', $createdTenant->id)
+                    ->latest('id')
+                    ->first();
+
+                $createdPay = Payment::query()->withoutGlobalScopes()
+                    ->where('gateway_payment_id', $paymentId)
+                    ->first();
+
+                CreateTenantJob::dispatch([
+                    'tenant_id'       => $createdTenant->id,
+                    'plan_id'         => $plan->id,
+                    'billing_cycle'   => $cycle,
+                    'owner_name'      => $ownerName,
+                    'owner_email'     => $ownerEmail,
+                    'owner_phone'     => $ownerPhone,
+                    'source'          => 'paid_checkout',
+                    'subscription_id' => $createdSub?->id,
+                    'payment_id'      => $createdPay?->id,
+                    'coupon_code'     => $couponCode !== '' ? $couponCode : null,
+                ]);
+
+                return redirect()->route('checkout.account-pending', [
+                    'email' => $ownerEmail,
+                ]);
+            }
+        }
+
         return redirect()->route('checkout.success');
     }
 
@@ -291,6 +335,23 @@ final class CheckoutController extends Controller
     public function success(): View
     {
         return view('checkout.success', [
+            'app_name' => SystemSetting::get('app_name', 'MNJIZ'),
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // GET /checkout/account-pending  (Phase F)
+    // ─────────────────────────────────────────────────────────────────
+    /**
+     * Landing page after signup or paid checkout completes under the
+     * Phase F secure-onboarding flow. Tells the visitor to check their
+     * inbox for a setup link. Carries no auth state and no secrets —
+     * just the email address (already known to the visitor) for UX.
+     */
+    public function accountPending(Request $request): View
+    {
+        return view('checkout.account-pending', [
+            'email'    => (string) $request->query('email', ''),
             'app_name' => SystemSetting::get('app_name', 'MNJIZ'),
         ]);
     }

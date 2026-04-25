@@ -53,4 +53,12 @@ return [
         'invalid' => 'بيانات الدفعة غير صحيحة.',
     ],
     'cta_on_pricing'     => 'اشترك الآن',
+
+    // Phase F — account-pending page after the new secure-onboarding flow.
+    'pending' => [
+        'title'           => 'تم استلام طلبك',
+        'body'            => 'أرسلنا لك بريداً إلى :email يحوي رابط إعداد كلمة المرور وتفعيل حسابك.',
+        'expiry_notice'   => 'الرابط صالح لمدة :hours ساعة من وقت الإرسال.',
+        'home'            => 'العودة للرئيسية',
+    ],
 ];

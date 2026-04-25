@@ -53,4 +53,12 @@ return [
         'invalid' => 'Invalid payment data.',
     ],
     'cta_on_pricing'     => 'Subscribe now',
+
+    // Phase F — account-pending page after the new secure-onboarding flow.
+    'pending' => [
+        'title'           => 'Your request has been received',
+        'body'            => 'We have sent you an email at :email containing a link to set your password and activate your account.',
+        'expiry_notice'   => 'The link is valid for :hours hours from now.',
+        'home'            => 'Back to home',
+    ],
 ];

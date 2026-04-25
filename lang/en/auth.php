@@ -17,8 +17,23 @@ return [
     // 'password' => 'The provided password is incorrect.',
     // 'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
 
-    'failed' => 'بيانات الاعتماد هذه لا تتطابق مع سجلاتنا.',
-    'password' => 'كلمة المرور المقدمة غير صحيحة.',
-    'throttle' => 'عدد محاولات تسجيل الدخول كثيرة جدًا. يرجى المحاولة مرة أخرى بعد :seconds ثانية.',
+    'failed' => 'These credentials do not match our records.',
+    'password' => 'The provided password is incorrect.',
+    'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
 
+    // Phase F — secure password setup flow.
+    'setup' => [
+        'page_title'         => 'Set your password',
+        'heading'            => 'Set your password',
+        'lead'               => 'Welcome! Choose a strong password for the account :email to finish onboarding and log in for the first time.',
+        'invalid_or_expired' => 'The link is invalid or has expired. Please request a new one.',
+        'success'            => 'Your password has been set. You can sign in now.',
+        'security_notice'    => 'We will never ask for your password via email or phone.',
+        'password_hint'      => 'At least 8 characters.',
+        'submit'             => 'Save password',
+        'fields' => [
+            'password'              => 'Password',
+            'password_confirmation' => 'Confirm password',
+        ],
+    ],
 ];

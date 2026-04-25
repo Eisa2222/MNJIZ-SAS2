@@ -8,6 +8,7 @@ use App\Actions\Billing\Subscription\StartTrialAction;
 use App\Enums\Billing\BillingCycle;
 use App\Enums\Billing\PaymentGateway;
 use App\Http\Controllers\Controller;
+use App\Jobs\CreateTenantJob;
 use App\Mail\Marketing\WelcomeMail;
 use App\Models\Plan;
 use App\Models\Tenant;
@@ -16,6 +17,7 @@ use App\Tenancy\TenantContext;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -52,15 +54,28 @@ final class PublicSignupController extends Controller
 
     public function store(Request $request, StartTrialAction $startTrial): RedirectResponse
     {
-        $data = $request->validate([
+        $useSetupLink = (bool) Config::get('tenancy.signup.use_setup_link', false);
+
+        $rules = [
             'firm_name' => ['required', 'string', 'min:2', 'max:120'],
             'name'      => ['required', 'string', 'min:2', 'max:120'],
             'email'     => ['required', 'email', 'max:191', Rule::unique('users', 'email')],
-            'password'  => ['required', 'string', 'min:8', 'confirmed'],
             'plan'      => ['nullable', 'string', Rule::exists('plans', 'slug')->where('is_active', true)->where('is_free', false)],
             'cycle'     => ['nullable', 'in:monthly,yearly'],
             'terms'     => ['required', 'accepted'],
-        ]);
+        ];
+
+        // Phase F — when setup-link mode is on, the signup form no longer
+        // collects a password; the user picks one via the welcome-mail
+        // signed URL. Legacy mode keeps the inline-password requirement
+        // so RegistrationTest etc. still pass.
+        if (! $useSetupLink) {
+            $rules['password'] = ['required', 'string', 'min:8', 'confirmed'];
+        } else {
+            $rules['phone'] = ['nullable', 'string', 'max:32'];
+        }
+
+        $data = $request->validate($rules);
 
         // Default plan: Pro (slug=professional, the featured one). Fall through
         // to the first sellable plan if Pro doesn't exist (e.g. test envs that
@@ -74,28 +89,30 @@ final class PublicSignupController extends Controller
             : BillingCycle::Monthly;
 
         try {
-            [$tenant, $user, $subscription] = DB::transaction(function () use ($data, $plan, $cycle, $startTrial) {
-                // 1. Create the tenant. Slug derived from firm_name + suffix
-                //    so two firms with the same name don't collide.
+            // Phase F: when setup-link mode is on, we DO NOT create the
+            // owner user inline — CreateTenantJob does that asynchronously
+            // (with a placeholder password the operator never sees).
+            // Legacy path still creates the user inline so test baselines
+            // (Auth\RegistrationTest, signup auto-login expectations) hold.
+            [$tenant, $user, $subscription] = DB::transaction(function () use ($data, $plan, $cycle, $startTrial, $useSetupLink) {
                 $tenant = Tenant::create([
                     'name'   => $data['firm_name'],
                     'slug'   => $this->generateUniqueSlug($data['firm_name']),
                     'status' => 'active',
                 ]);
 
-                // 2. Create the owner user under the new tenant context so the
-                //    BelongsToTenant creating hook auto-fills tenant_id.
-                $user = TenantContext::runAs($tenant, fn () => User::create([
-                    'name'                => $data['name'],
-                    'email'               => $data['email'],
-                    'password'            => Hash::make($data['password']),
-                    'nationality'         => 'SA',
-                    'tour_completed'      => 0,
-                    'tour_task_completed' => 0,
-                ]));
+                $user = null;
+                if (! $useSetupLink) {
+                    $user = TenantContext::runAs($tenant, fn () => User::create([
+                        'name'                => $data['name'],
+                        'email'               => $data['email'],
+                        'password'            => Hash::make($data['password']),
+                        'nationality'         => 'SA',
+                        'tour_completed'      => 0,
+                        'tour_task_completed' => 0,
+                    ]));
+                }
 
-                // 3. Start the trialing subscription. StartTrialAction handles
-                //    trial vs. immediate-active branching based on plan.trial_days.
                 $subscription = $startTrial->execute(
                     $tenant,
                     $plan,
@@ -116,19 +133,36 @@ final class PublicSignupController extends Controller
                 ->withErrors(['email' => __('Could not complete signup. Please try again.')]);
         }
 
-        // 4. Send the welcome email (queued — does not block redirect).
+        // ─── Phase F branch ────────────────────────────────────────────
+        if ($useSetupLink) {
+            CreateTenantJob::dispatch([
+                'tenant_id'       => $tenant->id,
+                'plan_id'         => $plan->id,
+                'billing_cycle'   => $cycle->value,
+                'owner_name'      => $data['name'],
+                'owner_email'     => $data['email'],
+                'owner_phone'     => $data['phone'] ?? '',
+                'source'          => 'trial',
+                'subscription_id' => $subscription->id,
+                'payment_id'      => null,
+                'coupon_code'     => null,
+            ]);
+
+            return redirect()->route('checkout.account-pending', [
+                'email' => $data['email'],
+            ]);
+        }
+
+        // ─── Legacy path (preserved) ───────────────────────────────────
         try {
             Mail::to($user->email)->queue(new WelcomeMail($tenant, $user, $subscription));
         } catch (\Throwable $e) {
-            // Non-blocking — log but proceed. The user can re-trigger via
-            // resend from the dashboard later.
             Log::warning('signup.welcome_email_failed', [
                 'tenant_id' => $tenant->id,
                 'message'   => $e->getMessage(),
             ]);
         }
 
-        // 5. Auto-login + redirect to onboarding.
         auth()->login($user);
 
         return redirect()

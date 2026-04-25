@@ -122,6 +122,33 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Phase F — Secure Tenant Onboarding
+    |--------------------------------------------------------------------------
+    |
+    | When TRUE, /register and /checkout/callback both stop creating the
+    | owner User inline. Instead they dispatch CreateTenantJob which:
+    |
+    |   - Creates the User with an unreachable placeholder password
+    |   - Issues a 48h signed setup URL
+    |   - Sends the TenantWelcomeMail
+    |
+    | The visitor then sees an "account-pending" page and must click
+    | the email link to set their real password and log in.
+    |
+    | When FALSE (default = legacy behaviour) the Phase 9
+    | PublicSignupController and the Phase E synchronous user-skipping
+    | checkout callback both stay exactly as they were — preserving the
+    | pre-Phase-F test baselines (Auth\RegistrationTest etc.).
+    |
+    | Production deployments should flip this to TRUE.
+    |
+    */
+    'signup' => [
+        'use_setup_link' => (bool) env('TENANT_SIGNUP_USE_SETUP_LINK', false),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Strict Mode
     |--------------------------------------------------------------------------
     |

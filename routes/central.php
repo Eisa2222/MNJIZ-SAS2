@@ -94,6 +94,27 @@ Route::middleware('auth')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| Phase F — Secure Password Setup (welcome-mail link)
+|--------------------------------------------------------------------------
+| The GET endpoint is gated by Laravel's `signed` middleware so any
+| tampered query string OR access after the 48h expiry returns 403
+| before the controller is reached. The POST endpoint additionally
+| re-verifies the token by sha256 hash compare in the controller.
+*/
+Route::controller(\App\Http\Controllers\Auth\TenantPasswordSetupController::class)
+    ->group(function () {
+        Route::get('/password/setup/{token}', 'show')
+            ->middleware('signed')
+            ->where('token', '[A-Fa-f0-9]{64}')
+            ->name('tenant.password.setup');
+
+        Route::post('/password/setup', 'store')
+            ->middleware('throttle:6,1')
+            ->name('tenant.password.setup.store');
+    });
+
+/*
+|--------------------------------------------------------------------------
 | Phase E — Public Checkout Flow
 |--------------------------------------------------------------------------
 | Anonymous-friendly checkout: anyone can land here from the pricing
@@ -121,6 +142,7 @@ Route::middleware(['apply.system_settings'])
         Route::get('/checkout/callback', 'callback')->name('checkout.callback');
         Route::get('/checkout/success',  'success')->name('checkout.success');
         Route::get('/checkout/failure',  'failure')->name('checkout.failure');
+        Route::get('/checkout/account-pending', 'accountPending')->name('checkout.account-pending');
 
         Route::get('/checkout/{plan:slug}',  'show')
             ->name('checkout.show')
