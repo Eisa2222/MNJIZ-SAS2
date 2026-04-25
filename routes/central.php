@@ -91,3 +91,38 @@ Route::middleware('auth')->group(function () {
         [\App\Http\Controllers\Onboarding\OnboardingController::class, 'welcome']
     )->name('onboarding.welcome');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Phase E — Public Checkout Flow
+|--------------------------------------------------------------------------
+| Anonymous-friendly checkout: anyone can land here from the pricing
+| grid, fill company details, optionally apply a coupon, pay via
+| Moyasar.js, and have a Tenant + Subscription + Payment provisioned in
+| one DB::transaction inside callback().
+|
+| The Phase 9 trial-signup at /register stays untouched — it remains the
+| no-card-required onboarding path. Checkout is for direct paid
+| subscriptions (or upgrades initiated from the pricing page).
+|
+| `apply.system_settings` middleware is applied so the operator's
+| Super-Admin-saved Moyasar keys override env defaults at runtime.
+*/
+Route::middleware(['apply.system_settings'])
+    ->controller(\App\Http\Controllers\CheckoutController::class)
+    ->group(function () {
+        // Static paths MUST be registered before the {plan:slug} catch-all,
+        // otherwise Laravel's router will treat "callback" / "success" /
+        // "failure" as a slug and 404 the static endpoints.
+        Route::post('/checkout/apply-coupon', 'applyCoupon')
+            ->middleware('throttle:30,1')
+            ->name('checkout.apply-coupon');
+
+        Route::get('/checkout/callback', 'callback')->name('checkout.callback');
+        Route::get('/checkout/success',  'success')->name('checkout.success');
+        Route::get('/checkout/failure',  'failure')->name('checkout.failure');
+
+        Route::get('/checkout/{plan:slug}',  'show')
+            ->name('checkout.show')
+            ->where('plan', '[A-Za-z0-9_-]+');
+    });

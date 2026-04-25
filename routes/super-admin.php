@@ -124,15 +124,16 @@ Route::middleware('auth:super_admin')->group(function () {
         });
     });
 
-    // Coupons — listing open to all admins, CRUD restricted to super_admin role.
-    Route::get('coupons', [CouponController::class, 'index'])
-        ->name('super-admin.coupons.index');
+    // Coupons — listing + show open to all admins, CRUD restricted to super_admin role.
+    Route::get('coupons',              [CouponController::class, 'index'])->name('super-admin.coupons.index');
+    Route::get('coupons/{coupon}',     [CouponController::class, 'show'])->whereNumber('coupon')->name('super-admin.coupons.show');
 
     Route::middleware('admin.role:super_admin')->group(function () {
         Route::get('coupons/create',         [CouponController::class, 'create'])->name('super-admin.coupons.create');
         Route::post('coupons',               [CouponController::class, 'store'])->name('super-admin.coupons.store');
-        Route::get('coupons/{coupon}/edit',  [CouponController::class, 'edit'])->name('super-admin.coupons.edit');
-        Route::put('coupons/{coupon}',       [CouponController::class, 'update'])->name('super-admin.coupons.update');
-        Route::delete('coupons/{coupon}',    [CouponController::class, 'destroy'])->name('super-admin.coupons.destroy');
+        Route::get('coupons/{coupon}/edit',  [CouponController::class, 'edit'])->whereNumber('coupon')->name('super-admin.coupons.edit');
+        Route::put('coupons/{coupon}',       [CouponController::class, 'update'])->whereNumber('coupon')->name('super-admin.coupons.update');
+        Route::post('coupons/{coupon}/toggle', [CouponController::class, 'toggle'])->whereNumber('coupon')->name('super-admin.coupons.toggle');
+        Route::delete('coupons/{coupon}',    [CouponController::class, 'destroy'])->whereNumber('coupon')->name('super-admin.coupons.destroy');
     });
 });

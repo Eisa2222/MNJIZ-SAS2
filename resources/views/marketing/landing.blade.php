@@ -137,8 +137,8 @@
                             <li>{{ $f->name }}: <strong>{{ $f->pivot->value }}</strong></li>
                         @endforeach
                     </ul>
-                    <a href="/register?plan={{ $plan->slug }}" class="btn btn-primary" style="background:{{ $plan->is_featured ? '#0f4c75' : '#edf2f7' }};color:{{ $plan->is_featured ? '#fff' : '#0f4c75' }}">
-                        {{ $plan->trial_days > 0 ? __('landing.pricing.start_trial', ['days' => $plan->trial_days]) : __('landing.pricing.start_now') }}
+                    <a href="{{ route('checkout.show', ['plan' => $plan->slug]) }}" class="btn btn-primary" style="background:{{ $plan->is_featured ? '#0f4c75' : '#edf2f7' }};color:{{ $plan->is_featured ? '#fff' : '#0f4c75' }}">
+                        {{ __('checkout.cta_on_pricing') }}
                     </a>
                 </div>
             @endforeach

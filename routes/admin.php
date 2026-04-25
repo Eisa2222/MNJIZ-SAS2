@@ -112,15 +112,17 @@ Route::middleware('auth:admin')->group(function () {
         });
     });
 
-    // Coupons — listing open to all admins, CRUD restricted to super_admin.
-    Route::get('coupons', [\App\Http\Controllers\Admin\CouponController::class, 'index'])->name('admin.coupons.index');
+    // Coupons — listing + show open to all admins, CRUD restricted to super_admin.
+    Route::get('coupons',              [\App\Http\Controllers\Admin\CouponController::class, 'index'])->name('admin.coupons.index');
+    Route::get('coupons/{coupon}',     [\App\Http\Controllers\Admin\CouponController::class, 'show'])->whereNumber('coupon')->name('admin.coupons.show');
 
     Route::middleware('admin.role:super_admin')->group(function () {
         Route::get('coupons/create',       [\App\Http\Controllers\Admin\CouponController::class, 'create'])->name('admin.coupons.create');
         Route::post('coupons',             [\App\Http\Controllers\Admin\CouponController::class, 'store'])->name('admin.coupons.store');
-        Route::get('coupons/{coupon}/edit', [\App\Http\Controllers\Admin\CouponController::class, 'edit'])->name('admin.coupons.edit');
-        Route::put('coupons/{coupon}',     [\App\Http\Controllers\Admin\CouponController::class, 'update'])->name('admin.coupons.update');
-        Route::delete('coupons/{coupon}',  [\App\Http\Controllers\Admin\CouponController::class, 'destroy'])->name('admin.coupons.destroy');
+        Route::get('coupons/{coupon}/edit', [\App\Http\Controllers\Admin\CouponController::class, 'edit'])->whereNumber('coupon')->name('admin.coupons.edit');
+        Route::put('coupons/{coupon}',     [\App\Http\Controllers\Admin\CouponController::class, 'update'])->whereNumber('coupon')->name('admin.coupons.update');
+        Route::post('coupons/{coupon}/toggle', [\App\Http\Controllers\Admin\CouponController::class, 'toggle'])->whereNumber('coupon')->name('admin.coupons.toggle');
+        Route::delete('coupons/{coupon}',  [\App\Http\Controllers\Admin\CouponController::class, 'destroy'])->whereNumber('coupon')->name('admin.coupons.destroy');
     });
 });
 
