@@ -53,6 +53,26 @@ return [
             'driver'   => 'session',
             'provider' => 'admins',
         ],
+
+        /*
+        |----------------------------------------------------------------------
+        | Super Admin Guard (Phase B — Path C compatibility layer)
+        |----------------------------------------------------------------------
+        | Spec-compliant alias of the `admin` guard above.
+        |
+        |   - Same `admins` table (no rename)
+        |   - Distinct provider → distinct App\Models\SuperAdmin marker class
+        |   - Distinct session → cannot accidentally elevate /admin into
+        |     /super-admin (or vice versa) without re-authentication
+        |
+        | Both guards continue to work side-by-side until the legacy /admin
+        | surface is retired. Optionally enable a 301 from /admin/* to
+        | /super-admin/* via `ADMIN_LEGACY_REDIRECT=true`.
+        */
+        'super_admin' => [
+            'driver'   => 'session',
+            'provider' => 'super_admins',
+        ],
     ],
 
     /*
@@ -81,6 +101,14 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model'  => App\Models\Admin::class,
+        ],
+
+        // Phase B — Super Admin provider. Same `admins` table is reached via
+        // App\Models\SuperAdmin (extends Admin); a distinct provider is what
+        // gives Auth::guard('super_admin') its own session bucket.
+        'super_admins' => [
+            'driver' => 'eloquent',
+            'model'  => App\Models\SuperAdmin::class,
         ],
 
         // 'users' => [
@@ -118,6 +146,16 @@ return [
 
         'admins' => [
             'provider' => 'admins',
+            'table'    => 'admin_password_reset_tokens',
+            'expire'   => 15,
+            'throttle' => 60,
+        ],
+
+        // Phase B — same reset table, different provider. Lets a super-admin
+        // use Password::broker('super_admins')->sendResetLink() / reset()
+        // without colliding with the legacy `admins` broker.
+        'super_admins' => [
+            'provider' => 'super_admins',
             'table'    => 'admin_password_reset_tokens',
             'expire'   => 15,
             'throttle' => 60,

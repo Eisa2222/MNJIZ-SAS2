@@ -118,6 +118,21 @@ class Kernel extends HttpKernel
         */
         'admin.guest'       => \App\Http\Middleware\RedirectIfAuthenticatedAdmin::class,
         'admin.role'        => \App\Http\Middleware\RequireAdminRole::class,
+
+        /*
+        |----------------------------------------------------------------------
+        | Phase B — Super Admin Compatibility Layer
+        |----------------------------------------------------------------------
+        | super-admin.guest    → RedirectIfAuthenticated for the new guard
+        | admin.legacy.redirect → optional 301 from /admin/* to /super-admin/*
+        |                          (off unless ADMIN_LEGACY_REDIRECT=true)
+        |
+        | The existing `admin.role` alias stays unchanged — it reads role
+        | constants off the Admin model, and SuperAdmin extends Admin so
+        | the same checks apply when invoked under the super_admin guard.
+        */
+        'super-admin.guest'      => \App\Http\Middleware\RedirectIfAuthenticatedSuperAdmin::class,
+        'admin.legacy.redirect'  => \App\Http\Middleware\RedirectAdminToSuperAdmin::class,
         'impersonating'     => \App\Http\Middleware\ImpersonationContext::class,
     ];
 

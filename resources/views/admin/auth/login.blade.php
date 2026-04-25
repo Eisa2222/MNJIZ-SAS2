@@ -10,7 +10,11 @@
             <div class="flash" style="background:#b91c1c;color:#fee2e2;">{{ $errors->first() }}</div>
         @endif
 
-        <form method="POST" action="{{ route('admin.login.attempt') }}">
+        {{-- Phase B: same view serves both /admin/login and /super-admin/login.
+             The SuperAdmin LoginController passes $loginAction; the legacy
+             Admin LoginController doesn't, so we fall back to the existing
+             route name. --}}
+        <form method="POST" action="{{ $loginAction ?? route('admin.login.attempt') }}">
             @csrf
             <label>Email</label>
             <input type="email" name="email" value="{{ old('email') }}" required autofocus>

@@ -105,6 +105,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Phase B — Legacy /admin → /super-admin Redirect
+    |--------------------------------------------------------------------------
+    |
+    | When `true`, every request hitting /admin/* gets a 301 redirect to
+    | the spec-compliant /super-admin/* equivalent. When `false` (default),
+    | /admin keeps responding directly — preserving 173+ existing tests
+    | and any external links/bookmarks that target the legacy surface.
+    |
+    | Toggle via `ADMIN_LEGACY_REDIRECT=true` only after every admin user
+    | has logged into /super-admin at least once and external integrations
+    | have been updated.
+    |
+    */
+    'admin_legacy_redirect' => (bool) env('ADMIN_LEGACY_REDIRECT', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Strict Mode
     |--------------------------------------------------------------------------
     |

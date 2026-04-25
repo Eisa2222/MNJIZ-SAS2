@@ -87,10 +87,21 @@ final class TenancyServiceProvider extends ServiceProvider
         }
 
         // Admin panel (Phase 3) — central, never tenant-resolved.
+        // The `admin.legacy.redirect` middleware is a no-op unless the
+        // ADMIN_LEGACY_REDIRECT env flag is true (Phase B compatibility).
         if (file_exists(base_path('routes/admin.php'))) {
-            Route::middleware('web')
+            Route::middleware(['web', 'admin.legacy.redirect'])
                 ->prefix('admin')
                 ->group(base_path('routes/admin.php'));
+        }
+
+        // Super Admin panel (Phase B — Path C compatibility layer).
+        // Mirrors routes/admin.php under /super-admin with the new
+        // `super_admin` guard. Both surfaces stay live in parallel.
+        if (file_exists(base_path('routes/super-admin.php'))) {
+            Route::middleware('web')
+                ->prefix('super-admin')
+                ->group(base_path('routes/super-admin.php'));
         }
 
         if (file_exists(base_path('routes/tenant.php'))) {
