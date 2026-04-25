@@ -80,17 +80,26 @@ class DefaultPlansSeeder extends Seeder
     {
         $unlimited = config('billing.unlimited_sentinel', '__unlimited__');
 
+        // Phase 9 GTM lineup. Slug stability matters — many existing tests +
+        // production tenants reference `starter` / `professional`, so we
+        // KEEP those slugs and only update display labels. New signups land
+        // on `professional` (the featured plan).
+        //
+        //   slug          display name      audience
+        //   free          Free              try-before-buy
+        //   starter       Basic             sole practitioner / small firm
+        //   professional  Pro               mid-size firm (FEATURED)
+        //   enterprise    Enterprise        large firm — everything unlimited
         $definitions = [
-            // slug     monthly yearly free?  features-map
             ['free', [
                 'name'          => 'Free',
-                'description'   => 'Try MNJIZ with a single lawyer and basic case management.',
+                'description'   => 'Try MNJIZ with a single user and basic features.',
                 'price_monthly' => 0,
                 'price_yearly'  => 0,
                 'is_free'       => true,
                 'is_featured'   => false,
                 'trial_days'    => 0,
-                'sort_order'    => 10,
+                'sort_order'    => 5,
                 'features' => [
                     'max_users'         => '1',
                     'max_clients'       => '10',
@@ -107,15 +116,16 @@ class DefaultPlansSeeder extends Seeder
                     'api.requests'      => '0',
                 ],
             ]],
+            // ─── Basic (slug=starter, kept) — prices preserved from Phase 4 ──
             ['starter', [
-                'name'          => 'Starter',
+                'name'          => 'Basic',
                 'description'   => 'For small firms. AI chat, Microsoft Teams, Qoyod sync.',
                 'price_monthly' => 299,
                 'price_yearly'  => 2990,
                 'is_free'       => false,
-                'is_featured'   => true,
+                'is_featured'   => false,
                 'trial_days'    => 14,
-                'sort_order'    => 20,
+                'sort_order'    => 10,
                 'features' => [
                     'max_users'         => '10',
                     'max_clients'       => '500',
@@ -132,15 +142,16 @@ class DefaultPlansSeeder extends Seeder
                     'api.requests'      => '0',
                 ],
             ]],
+            // ─── Pro (slug=professional, kept) — FEATURED on pricing ────
             ['professional', [
-                'name'          => 'Professional',
-                'description'   => 'For mid-to-large firms. Unlimited AI, BioStation, API.',
+                'name'          => 'Pro',
+                'description'   => 'For mid-to-large firms. Unlimited AI, BioStation, API. 14-day free trial.',
                 'price_monthly' => 799,
                 'price_yearly'  => 7990,
                 'is_free'       => false,
-                'is_featured'   => false,
+                'is_featured'   => true,
                 'trial_days'    => 14,
-                'sort_order'    => 30,
+                'sort_order'    => 20,
                 'features' => [
                     'max_users'         => $unlimited,
                     'max_clients'       => $unlimited,
@@ -155,6 +166,31 @@ class DefaultPlansSeeder extends Seeder
                     'legal_ai.calls'    => $unlimited,
                     'sms.messages'      => '5000',
                     'api.requests'      => '100000',
+                ],
+            ]],
+            ['enterprise', [
+                'name'          => 'Enterprise',
+                'description'   => 'For large firms — every system, unlimited AI, BioStation device, public API, dedicated support. 14-day free trial.',
+                'price_monthly' => 1499,
+                'price_yearly'  => 14990,          // ~17% annual discount
+                'is_free'       => false,
+                'is_featured'   => false,
+                'trial_days'    => 14,
+                'sort_order'    => 30,
+                'features' => [
+                    'max_users'         => $unlimited,
+                    'max_clients'       => $unlimited,
+                    'max_lawsuits'      => $unlimited,
+                    'max_storage_mb'    => '500000',
+                    'legal_ai.chat'     => '1',
+                    'legal_ai.drafting' => '1',
+                    'qoyod.sync'        => '1',
+                    'microsoft.teams'   => '1',
+                    'biostation.device' => '1',
+                    'api.access'        => '1',
+                    'legal_ai.calls'    => $unlimited,
+                    'sms.messages'      => '10000',
+                    'api.requests'      => '500000',
                 ],
             ]],
         ];

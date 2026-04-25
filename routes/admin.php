@@ -36,6 +36,11 @@ Route::middleware('auth:admin')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard.alt');
 
+    // Phase 9 — GTM growth metrics endpoint (read-only JSON).
+    Route::get('/api/growth',
+        [\App\Http\Controllers\Admin\GrowthMetricsController::class, 'show']
+    )->name('admin.growth.metrics');
+
     // Tenants — reads for all admin roles; mutations restricted to super_admin.
     Route::prefix('tenants')->name('admin.tenants.')->group(function () {
         Route::get('/',                         [TenantController::class, 'index'])->name('index');

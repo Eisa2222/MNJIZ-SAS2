@@ -44,7 +44,8 @@ final class TenantBillingPortalTest extends TestCase
 
         $response->assertOk()
                  ->assertSee($sub->plan->name)
-                 ->assertSeeText('Starter');
+                 // Phase 9 renamed display label: starter slug now shows as "Basic".
+                 ->assertSeeText('Basic');
     }
 
     public function test_tenant_user_can_cancel_subscription(): void
