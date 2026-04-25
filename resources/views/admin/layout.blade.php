@@ -40,6 +40,10 @@
         <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Dashboard</a>
         <a href="{{ route('admin.tenants.index') }}" class="{{ request()->routeIs('admin.tenants.*') ? 'active' : '' }}">Tenants</a>
         <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">Central Settings</a>
+        @if (auth('admin')->user()?->role === 'super_admin')
+            <a href="{{ route('admin.landing-features.index') }}" class="{{ request()->routeIs('admin.landing-features.*') ? 'active' : '' }}">Landing Features</a>
+            <a href="{{ route('admin.landing-faqs.index') }}" class="{{ request()->routeIs('admin.landing-faqs.*') ? 'active' : '' }}">Landing FAQs</a>
+        @endif
         <form method="POST" action="{{ route('admin.logout') }}" style="margin-top:24px;">
             @csrf
             <button type="submit" class="btn btn-danger" style="width:100%;">Log out</button>

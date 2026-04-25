@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MNJIZ — منصة إدارة المكاتب القانونية والموارد البشرية</title>
-    <meta name="description" content="نظام SaaS متعدد المستأجرين لإدارة المكاتب القانونية، الموارد البشرية، العقود، الجلسات، والمحاسبة — كل شيء في مكان واحد.">
+    <title>{{ \App\Models\SystemSetting::get('app_name', 'MNJIZ') }} — {{ __('landing.meta.title') }}</title>
+    <meta name="description" content="{{ __('landing.meta.description') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,6 +25,7 @@
         .hero h1{font-size:42px;font-weight:700;margin-bottom:16px}
         .hero p{font-size:20px;opacity:.95;max-width:760px;margin:0 auto 32px}
         .hero .cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+        .hero img.hero-art{max-width:520px;width:100%;margin-top:32px;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
         .btn{display:inline-block;padding:14px 32px;border-radius:8px;font-weight:600;font-size:16px;cursor:pointer;border:0}
         .btn-primary{background:#fff;color:#0f4c75}
         .btn-secondary{background:transparent;color:#fff;border:2px solid #fff}
@@ -38,15 +39,12 @@
         .feature .icon{font-size:32px;margin-bottom:12px}
         .feature h3{font-size:18px;font-weight:700;margin-bottom:8px;color:#0f4c75}
         .feature p{color:#4a5568;font-size:14px}
-
-        .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px}
-        .step{text-align:center}
-        .step .num{display:inline-block;width:48px;height:48px;line-height:48px;background:#0f4c75;color:#fff;border-radius:50%;font-weight:700;margin-bottom:16px}
+        .feature img.thumb{width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:16px}
 
         .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;align-items:stretch}
         .plan{background:#fff;border:2px solid #e2e8f0;border-radius:16px;padding:32px 28px;display:flex;flex-direction:column}
         .plan.featured{border-color:#0f4c75;box-shadow:0 8px 24px rgba(15,76,117,0.15);transform:translateY(-8px);position:relative}
-        .plan.featured::before{content:'الأكثر شيوعاً';position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#0f4c75;color:#fff;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700}
+        .plan.featured::before{content:'{{ __('landing.pricing.most_popular') }}';position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#0f4c75;color:#fff;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700}
         .plan h3{font-size:22px;font-weight:700;color:#0f4c75;margin-bottom:6px}
         .plan .desc{color:#718096;font-size:14px;margin-bottom:20px;min-height:42px}
         .plan .price{font-size:36px;font-weight:700;margin-bottom:6px}
@@ -57,7 +55,7 @@
         .plan .features li::before{content:'✓';color:#48bb78;font-weight:700;font-size:16px}
         .plan .btn{width:100%;text-align:center}
 
-        .faq dl dt{font-weight:700;color:#0f4c75;padding:16px 0 8px}
+        .faq dl dt{font-weight:700;color:#0f4c75;padding:16px 0 8px;cursor:pointer}
         .faq dl dd{color:#4a5568;padding-bottom:16px;border-bottom:1px solid #e2e8f0}
 
         footer{background:#1a202c;color:#cbd5e0;padding:48px 0 24px;text-align:center}
@@ -69,114 +67,78 @@
 
 <nav>
     <div class="container">
-        <a href="/" class="brand">MNJIZ</a>
+        <a href="/" class="brand">{{ \App\Models\SystemSetting::get('app_name', 'MNJIZ') }}</a>
         <ul>
-            <li><a href="#features">المميزات</a></li>
-            <li><a href="#how">كيف يعمل</a></li>
-            <li><a href="#pricing">الأسعار</a></li>
-            <li><a href="#faq">الأسئلة الشائعة</a></li>
-            <li><a href="/register" class="cta">ابدأ مجاناً</a></li>
+            <li><a href="#features">{{ __('landing.nav.features') }}</a></li>
+            <li><a href="#pricing">{{ __('landing.nav.pricing') }}</a></li>
+            <li><a href="#faq">{{ __('landing.nav.faq') }}</a></li>
+            <li><a href="{{ $hero['cta_url'] }}" class="cta">{{ __('landing.nav.cta') }}</a></li>
         </ul>
     </div>
 </nav>
 
+{{-- ─── HERO (dynamic) ────────────────────────────────────────── --}}
 <header class="hero">
     <div class="container">
-        <h1>منصة واحدة لإدارة مكتبك القانوني بالكامل</h1>
-        <p>الموارد البشرية، الدعاوى القضائية، الجلسات، العقود، التحصيل، الفوترة، والذكاء الاصطناعي — كلها في نظام واحد آمن متعدد المستأجرين.</p>
+        <h1>{{ $hero['title'] }}</h1>
+        <p>{{ $hero['subtitle'] }}</p>
         <div class="cta-row">
-            <a href="/register" class="btn btn-primary">ابدأ تجربتك المجانية لمدة 14 يوم</a>
-            <a href="#pricing" class="btn btn-secondary">شاهد الأسعار</a>
+            <a href="{{ $hero['cta_url'] }}" class="btn btn-primary">{{ $hero['cta_text'] }}</a>
+            <a href="#pricing" class="btn btn-secondary">{{ __('landing.hero.see_pricing') }}</a>
         </div>
+        @if (! empty($hero['image']))
+            <img src="{{ $hero['image'] }}" alt="" class="hero-art">
+        @endif
     </div>
 </header>
 
+{{-- ─── FEATURES (dynamic — falls back to Phase 9 hardcoded copy) ── --}}
 <section id="features">
     <div class="container">
-        <h2>كل ما يحتاجه مكتبك في مكان واحد</h2>
-        <p class="lead">من إدارة الموظفين والعقود إلى متابعة الجلسات والتحصيلات والمحاسبة — بدون الحاجة لخمس أنظمة منفصلة.</p>
+        <h2>{{ __('landing.features.title') }}</h2>
+        <p class="lead">{{ __('landing.features.lead') }}</p>
         <div class="features-grid">
-            <div class="feature">
-                <div class="icon">⚖️</div>
-                <h3>إدارة الشؤون القانونية</h3>
-                <p>الدعاوى، الجلسات، الخصوم، الوكالات الشرعية، المذكرات، والمستندات — مع تذكيرات تلقائية للجلسات.</p>
-            </div>
-            <div class="feature">
-                <div class="icon">👥</div>
-                <h3>الموارد البشرية</h3>
-                <p>الموظفون، الحضور، الإجازات، السلف، المخالفات، المكافآت، الرواتب (WPS)، البصمة (BioStation).</p>
-            </div>
-            <div class="feature">
-                <div class="icon">💰</div>
-                <h3>التحصيل والفوترة</h3>
-                <p>العقود، العروض، الدفعات، تذكيرات الاستحقاق، تكامل قيود (Qoyod) للمحاسبة.</p>
-            </div>
-            <div class="feature">
-                <div class="icon">🤖</div>
-                <h3>ذكاء اصطناعي قانوني</h3>
-                <p>محادثة قانونية، صياغة المذكرات، استخلاص السوابق، تلخيص المستندات (OpenAI / Claude / Gemini).</p>
-            </div>
-            <div class="feature">
-                <div class="icon">📋</div>
-                <h3>المهام والاعتمادات</h3>
-                <p>سير العمل، الاعتمادات متعددة المستويات، التذكيرات، تكامل Microsoft Teams.</p>
-            </div>
-            <div class="feature">
-                <div class="icon">🔒</div>
-                <h3>عزل تام بين العملاء</h3>
-                <p>كل بيانات شركتك معزولة هيكلياً عن باقي العملاء — لا تسرب، لا اختلاط، 173 اختبار يثبت ذلك.</p>
-            </div>
+            @forelse ($features as $feature)
+                <div class="feature">
+                    @if (! empty($feature->image))
+                        <img src="{{ $feature->image }}" alt="" class="thumb">
+                    @endif
+                    @if (! empty($feature->icon))
+                        <div class="icon">{{ $feature->icon }}</div>
+                    @endif
+                    <h3>{{ $feature->title }}</h3>
+                    <p>{{ $feature->description }}</p>
+                </div>
+            @empty
+                {{-- Defensive fallback so a brand-new install still renders. --}}
+                <div class="feature"><div class="icon">⚖️</div><h3>{{ __('landing.features.fallback.legal.title') }}</h3><p>{{ __('landing.features.fallback.legal.body') }}</p></div>
+                <div class="feature"><div class="icon">👥</div><h3>{{ __('landing.features.fallback.hr.title') }}</h3><p>{{ __('landing.features.fallback.hr.body') }}</p></div>
+                <div class="feature"><div class="icon">💰</div><h3>{{ __('landing.features.fallback.billing.title') }}</h3><p>{{ __('landing.features.fallback.billing.body') }}</p></div>
+                <div class="feature"><div class="icon">🤖</div><h3>{{ __('landing.features.fallback.ai.title') }}</h3><p>{{ __('landing.features.fallback.ai.body') }}</p></div>
+            @endforelse
         </div>
     </div>
 </section>
 
-<section id="how" style="background:#fff">
+{{-- ─── PRICING (existing plans data — unchanged) ─────────────── --}}
+<section id="pricing" style="background:#fff">
     <div class="container">
-        <h2>كيف يعمل</h2>
-        <p class="lead">من التسجيل إلى استخدام النظام في أقل من 5 دقائق.</p>
-        <div class="steps">
-            <div class="step">
-                <div class="num">١</div>
-                <h3>سجّل حساباً</h3>
-                <p>أدخل بريدك وكلمة المرور وأنشئ مكتبك في خطوة واحدة.</p>
-            </div>
-            <div class="step">
-                <div class="num">٢</div>
-                <h3>ابدأ تجربتك</h3>
-                <p>14 يوم مجاناً لباقة Pro — كل المميزات بدون قيد.</p>
-            </div>
-            <div class="step">
-                <div class="num">٣</div>
-                <h3>أضف فريقك</h3>
-                <p>ادعُ الموظفين، أنشئ الأدوار، اربط حساباتك.</p>
-            </div>
-            <div class="step">
-                <div class="num">٤</div>
-                <h3>اعمل بحرية</h3>
-                <p>دعاوى، جلسات، عقود، فواتير — كل شيء جاهز.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section id="pricing">
-    <div class="container">
-        <h2>أسعار شفافة، بدون مفاجآت</h2>
-        <p class="lead">جميع الباقات تشمل تجربة مجانية لمدة 14 يوم. الاشتراك السنوي يوفر ما يعادل شهرين.</p>
+        <h2>{{ __('landing.pricing.title') }}</h2>
+        <p class="lead">{{ __('landing.pricing.lead') }}</p>
         <div class="pricing-grid">
             @foreach($plans as $plan)
                 <div class="plan {{ $plan->is_featured ? 'featured' : '' }}">
                     <h3>{{ $plan->name }}</h3>
                     <div class="desc">{{ $plan->description }}</div>
-                    <div class="price">{{ number_format($plan->price_monthly) }} <small>{{ $plan->currency ?? 'SAR' }} / شهر</small></div>
-                    <div class="yearly">سنوي: {{ number_format($plan->price_yearly) }} {{ $plan->currency ?? 'SAR' }} (وفّر شهرين)</div>
+                    <div class="price">{{ number_format($plan->price_monthly) }} <small>{{ $plan->currency ?? 'SAR' }} {{ __('landing.pricing.per_month') }}</small></div>
+                    <div class="yearly">{{ __('landing.pricing.yearly') }}: {{ number_format($plan->price_yearly) }} {{ $plan->currency ?? 'SAR' }} {{ __('landing.pricing.save_two_months') }}</div>
                     <ul class="features">
                         @foreach($plan->features->take(6) as $f)
                             <li>{{ $f->name }}: <strong>{{ $f->pivot->value }}</strong></li>
                         @endforeach
                     </ul>
                     <a href="/register?plan={{ $plan->slug }}" class="btn btn-primary" style="background:{{ $plan->is_featured ? '#0f4c75' : '#edf2f7' }};color:{{ $plan->is_featured ? '#fff' : '#0f4c75' }}">
-                        {{ $plan->trial_days > 0 ? "ابدأ تجربة مجانية {$plan->trial_days} يوم" : 'ابدأ الآن' }}
+                        {{ $plan->trial_days > 0 ? __('landing.pricing.start_trial', ['days' => $plan->trial_days]) : __('landing.pricing.start_now') }}
                     </a>
                 </div>
             @endforeach
@@ -184,41 +146,46 @@
     </div>
 </section>
 
-<section id="faq" class="faq" style="background:#fff">
+{{-- ─── FAQ (dynamic) ─────────────────────────────────────────── --}}
+<section id="faq" class="faq">
     <div class="container" style="max-width:800px">
-        <h2>الأسئلة الشائعة</h2>
-        <p class="lead">إجابات سريعة على الأسئلة الأكثر تكراراً.</p>
+        <h2>{{ __('landing.faq.title') }}</h2>
+        <p class="lead">{{ __('landing.faq.lead') }}</p>
         <dl>
-            <dt>هل بياناتي معزولة عن باقي العملاء؟</dt>
-            <dd>نعم. كل عميل لديه عزل هيكلي على مستوى قاعدة البيانات (tenant_id) مع 173 اختبار آلي يتحقق من ذلك. لا يوجد أي طريقة لرؤية بيانات عميل آخر.</dd>
-
-            <dt>هل يوجد فترة تجربة مجانية؟</dt>
-            <dd>نعم — 14 يوماً كاملة على باقة Pro بكل المميزات (ذكاء اصطناعي، Microsoft Teams، Qoyod). لا حاجة لبطاقة ائتمان للبدء.</dd>
-
-            <dt>كم تستغرق عملية الإعداد؟</dt>
-            <dd>أقل من 5 دقائق للحساب الأساسي. ربط Microsoft / Qoyod / BioStation اختياري ويتم لاحقاً.</dd>
-
-            <dt>هل يدعم النظام اللغة العربية؟</dt>
-            <dd>النظام مصمم بالكامل للسوق السعودي — RTL كامل، تواريخ هجرية، دعم WPS، تكامل قيود.</dd>
-
-            <dt>ماذا يحدث بعد انتهاء التجربة المجانية؟</dt>
-            <dd>تتلقى تذكيرات قبل الانتهاء بـ 7 و 3 و 1 يوم. إذا لم تشترك، الحساب يتوقف لكن البيانات تُحفظ 30 يوماً قبل الحذف.</dd>
-
-            <dt>هل يمكنني الترقية / التخفيض في أي وقت؟</dt>
-            <dd>نعم. يمكنك تغيير الباقة في أي وقت من صفحة الفوترة. التغييرات تنعكس على الفاتورة التالية بشكل تناسبي.</dd>
+            @forelse ($faqs as $faq)
+                <dt>{{ $faq->question }}</dt>
+                <dd>{{ $faq->answer }}</dd>
+            @empty
+                {{-- Defensive fallback so a brand-new install still renders. --}}
+                <dt>{{ __('landing.faq.fallback.isolation.q') }}</dt>
+                <dd>{{ __('landing.faq.fallback.isolation.a') }}</dd>
+                <dt>{{ __('landing.faq.fallback.trial.q') }}</dt>
+                <dd>{{ __('landing.faq.fallback.trial.a') }}</dd>
+                <dt>{{ __('landing.faq.fallback.upgrade.q') }}</dt>
+                <dd>{{ __('landing.faq.fallback.upgrade.a') }}</dd>
+            @endforelse
         </dl>
     </div>
 </section>
 
+{{-- ─── FOOTER (dynamic) ──────────────────────────────────────── --}}
 <footer>
     <div class="container">
         <div class="links">
-            <a href="/register">ابدأ الآن</a>
-            <a href="#pricing">الأسعار</a>
-            <a href="#faq">الأسئلة الشائعة</a>
-            <a href="mailto:support@mnjiz.sa">تواصل معنا</a>
+            <a href="{{ $hero['cta_url'] }}">{{ __('landing.footer.start_now') }}</a>
+            <a href="#pricing">{{ __('landing.nav.pricing') }}</a>
+            <a href="#faq">{{ __('landing.nav.faq') }}</a>
+            @if (! empty($footer['privacy_url']))
+                <a href="{{ $footer['privacy_url'] }}">{{ __('landing.footer.privacy') }}</a>
+            @endif
+            @if (! empty($footer['terms_url']))
+                <a href="{{ $footer['terms_url'] }}">{{ __('landing.footer.terms') }}</a>
+            @endif
+            @if (! empty($footer['support_email']))
+                <a href="mailto:{{ $footer['support_email'] }}">{{ __('landing.footer.contact') }}</a>
+            @endif
         </div>
-        <div class="copy">© {{ date('Y') }} MNJIZ — جميع الحقوق محفوظة</div>
+        <div class="copy">{{ $footer['copyright'] }}</div>
     </div>
 </footer>
 

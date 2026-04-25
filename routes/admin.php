@@ -78,6 +78,29 @@ Route::middleware('auth:admin')->group(function () {
             Route::put('/legacy/{key}',    [CentralSettingController::class, 'update'])->name('legacy.update');
         });
 
+    // Phase D — Landing Content (Features + FAQs). super_admin only.
+    Route::middleware('admin.role:super_admin')->group(function () {
+        Route::prefix('landing-features')->name('admin.landing-features.')->group(function () {
+            Route::get('/',                 [\App\Http\Controllers\Admin\LandingFeatureController::class, 'index'])->name('index');
+            Route::get('/create',           [\App\Http\Controllers\Admin\LandingFeatureController::class, 'create'])->name('create');
+            Route::post('/',                [\App\Http\Controllers\Admin\LandingFeatureController::class, 'store'])->name('store');
+            Route::post('/sort',            [\App\Http\Controllers\Admin\LandingFeatureController::class, 'sort'])->name('sort');
+            Route::get('/{landing_feature}/edit', [\App\Http\Controllers\Admin\LandingFeatureController::class, 'edit'])->whereNumber('landing_feature')->name('edit');
+            Route::put('/{landing_feature}',      [\App\Http\Controllers\Admin\LandingFeatureController::class, 'update'])->whereNumber('landing_feature')->name('update');
+            Route::delete('/{landing_feature}',   [\App\Http\Controllers\Admin\LandingFeatureController::class, 'destroy'])->whereNumber('landing_feature')->name('destroy');
+        });
+
+        Route::prefix('landing-faqs')->name('admin.landing-faqs.')->group(function () {
+            Route::get('/',             [\App\Http\Controllers\Admin\LandingFaqController::class, 'index'])->name('index');
+            Route::get('/create',       [\App\Http\Controllers\Admin\LandingFaqController::class, 'create'])->name('create');
+            Route::post('/',            [\App\Http\Controllers\Admin\LandingFaqController::class, 'store'])->name('store');
+            Route::post('/sort',        [\App\Http\Controllers\Admin\LandingFaqController::class, 'sort'])->name('sort');
+            Route::get('/{landing_faq}/edit', [\App\Http\Controllers\Admin\LandingFaqController::class, 'edit'])->whereNumber('landing_faq')->name('edit');
+            Route::put('/{landing_faq}',      [\App\Http\Controllers\Admin\LandingFaqController::class, 'update'])->whereNumber('landing_faq')->name('update');
+            Route::delete('/{landing_faq}',   [\App\Http\Controllers\Admin\LandingFaqController::class, 'destroy'])->whereNumber('landing_faq')->name('destroy');
+        });
+    });
+
     // Subscriptions — read for all admins, mutation for super_admin only.
     Route::prefix('subscriptions')->name('admin.subscriptions.')->group(function () {
         Route::get('/',             [\App\Http\Controllers\Admin\SubscriptionController::class, 'index'])->name('index');
