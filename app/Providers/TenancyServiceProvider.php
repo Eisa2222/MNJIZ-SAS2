@@ -97,8 +97,20 @@ final class TenancyServiceProvider extends ServiceProvider
             $prefix    = config('tenancy.identification.path.prefix', 't');
             $parameter = config('tenancy.identification.path.parameter', 'tenant');
 
+            // ── Legacy path-based group ─ /t/{slug}/...  (Phase 2-9, kept) ──
             Route::middleware(['web', 'tenant.init'])
                 ->prefix("{$prefix}/{{$parameter}}")
+                ->group(base_path('routes/tenant.php'));
+
+            // ── Phase A — host-aware group (subdomain + custom domain) ──
+            // Same route file, second registration. The `host.` name prefix
+            // keeps route names unique so a request to acme.mnjiz.sa/billing
+            // resolves to host.tenant.billing.index while
+            // mnjiz.sa/t/acme/billing keeps resolving to tenant.billing.index.
+            // PreventAccessFromCentralDomains 404s any tenant URL hit from
+            // a host listed in config('tenancy.central_domains').
+            Route::middleware(['web', 'tenant.init.host', 'tenant.prevent.central'])
+                ->name('host.')
                 ->group(base_path('routes/tenant.php'));
         }
     }

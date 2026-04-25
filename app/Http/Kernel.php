@@ -95,6 +95,24 @@ class Kernel extends HttpKernel
 
         /*
         |----------------------------------------------------------------------
+        | Phase A — Subdomain + Custom Domain Resolution
+        |----------------------------------------------------------------------
+        | 'tenant.init.host'        → resolves tenant from HOST first
+        |                             (custom domain → subdomain → path → header).
+        |                             Use on the new subdomain/custom-domain
+        |                             route group while `tenant.init` remains
+        |                             on the legacy `/t/{slug}/...` group.
+        |
+        | 'tenant.prevent.central' → 404 if a tenant route is hit from one of
+        |                             config('tenancy.central_domains'). Apply
+        |                             alongside `tenant.init.host` on host-aware
+        |                             tenant groups.
+        */
+        'tenant.init.host'        => \App\Http\Middleware\InitializeTenantByDomainOrSubdomain::class,
+        'tenant.prevent.central'  => \App\Http\Middleware\PreventAccessFromCentralDomains::class,
+
+        /*
+        |----------------------------------------------------------------------
         | Super Admin (Phase 3)
         |----------------------------------------------------------------------
         */

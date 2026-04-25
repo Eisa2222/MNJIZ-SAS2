@@ -43,8 +43,18 @@ return [
     | Tenant Identification
     |--------------------------------------------------------------------------
     |
-    | Phase A: path-based (/t/{tenant}/...).
-    | Phase B (later): subdomain ({tenant}.mnjiz.sa) + custom domain.
+    | Resolution order is fixed in TenantResolver:
+    |   1. custom-domain   — exact host match in `domains` table
+    |   2. subdomain       — `{slug}.{app_base_domain}` strip + lookup
+    |   3. path-based      — /t/{slug}/...   (legacy, ALWAYS preserved)
+    |   4. route param     — {tenant} bound by Laravel
+    |   5. header          — X-Tenant-Slug
+    |   6. default tenant  — when fallback_enabled
+    |
+    | The two boolean flags below let an operator turn off the host-based
+    | branches without touching code (e.g. local dev where the host is
+    | always `localhost`). The path-based branch cannot be turned off —
+    | it's the back-compat shield for every Phase 2-9 route + test.
     |
     */
     'identification' => [
@@ -54,6 +64,14 @@ return [
             'parameter' => 'tenant',
         ],
         'header' => 'X-Tenant-Slug',
+
+        'subdomain' => [
+            'enabled'         => (bool) env('TENANCY_SUBDOMAIN_ENABLED', true),
+            'app_base_domain' => env('TENANCY_APP_BASE_DOMAIN', 'mnjiz.sa'),
+        ],
+        'custom_domain' => [
+            'enabled' => (bool) env('TENANCY_CUSTOM_DOMAIN_ENABLED', true),
+        ],
     ],
 
     /*
@@ -61,8 +79,15 @@ return [
     | Central Domains / Paths
     |--------------------------------------------------------------------------
     |
-    | Paths and hosts that should NEVER be resolved as a tenant. The Super
-    | Admin panel, billing webhooks, public landing pages, etc.
+    | Paths AND hosts that should NEVER be resolved as a tenant. The Super
+    | Admin panel, billing webhooks, public landing pages, marketing site.
+    |
+    | central_paths    — first segment of the URL path (e.g. /admin/*)
+    | central_domains  — exact HTTP host match (e.g. mnjiz.sa, www.mnjiz.sa)
+    |
+    | Both are checked: a request to `https://mnjiz.sa/t/acme/...` would NOT
+    | resolve as a tenant because the host is central, even though the path
+    | uses the `/t/` prefix.
     |
     */
     'central_paths' => [
@@ -71,6 +96,12 @@ return [
         'webhooks',
         'billing',
     ],
+
+    'central_domains' => array_filter([
+        env('TENANCY_CENTRAL_DOMAIN_PRIMARY', 'mnjiz.sa'),
+        env('TENANCY_CENTRAL_DOMAIN_WWW',     'www.mnjiz.sa'),
+        env('TENANCY_CENTRAL_DOMAIN_APP',     'app.mnjiz.sa'),
+    ]),
 
     /*
     |--------------------------------------------------------------------------

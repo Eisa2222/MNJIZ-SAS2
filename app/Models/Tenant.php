@@ -81,6 +81,29 @@ class Tenant extends Model
             ->withoutGlobalScope(TenantScope::class);
     }
 
+    /**
+     * Phase A — every tenant can have many resolvable hosts:
+     *   - one auto-generated subdomain  ({slug}.{app_base_domain})
+     *   - zero or more verified custom domains
+     *
+     * Central relation. No TenantScope to remove (Domain itself is central).
+     */
+    public function domains(): HasMany
+    {
+        return $this->hasMany(Domain::class);
+    }
+
+    /**
+     * Returns the canonical Domain row used for absolute-URL generation
+     * (welcome emails, password setup links, share links, etc.). Falls back
+     * to the first row if no row is flagged primary.
+     */
+    public function primaryDomain(): ?Domain
+    {
+        return $this->domains()->where('is_primary', true)->first()
+            ?? $this->domains()->orderBy('id')->first();
+    }
+
     public function hasPlan(): bool
     {
         return $this->plan_id !== null;
