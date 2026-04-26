@@ -3,6 +3,32 @@
 declare(strict_types=1);
 
 return [
+    // Phase H+ collaborative-audit fix — i18n for admin/coupons/show.blade.php.
+    'coupons' => [
+        'title'           => 'كوبون',
+        'edit'            => 'تعديل',
+        'enable'          => 'تفعيل',
+        'disable'         => 'تعطيل',
+        'back'            => 'رجوع',
+        'fields' => [
+            'type'         => 'النوع',
+            'value'        => 'القيمة',
+            'active'       => 'مفعَّل',
+            'redemptions'  => 'الاستخدامات',
+            'audit_rows'   => 'سجلات التدقيق',
+            'min_amount'   => 'الحد الأدنى',
+            'expires'      => 'تاريخ الانتهاء',
+            'applies_to'   => 'ينطبق على',
+        ],
+        'values' => [
+            'yes'             => 'نعم',
+            'no'              => 'لا',
+            'unlimited'       => '(غير محدود)',
+            'any_plan'        => 'جميع الباقات',
+            'specific_plans'  => 'باقات محددة',
+        ],
+    ],
+
     'settings' => [
         'title'                  => 'إعدادات النظام',
         'save'                   => 'حفظ التغييرات',

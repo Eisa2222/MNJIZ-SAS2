@@ -70,6 +70,11 @@ final class CheckTrialExpiryCommand extends Command
         $this->info("Found {$total} trial subscriptions to expire (suspend={$this->bool($suspendTenants)}, notify={$this->bool($sendMail)}).");
 
         $query->chunkById(100, function ($subs) use ($suspendTenants, $sendMail, &$expired, &$suspended, &$mailed) {
+            // Phase H+ collaborative-audit fix: batch-load tenants for the
+            // chunk in ONE query (was N round-trips per chunk previously).
+            $tenantIds = $subs->pluck('tenant_id')->unique()->all();
+            $tenants   = Tenant::query()->whereIn('id', $tenantIds)->get()->keyBy('id');
+
             foreach ($subs as $sub) {
                 /** @var Subscription $sub */
                 if ($this->option('dry-run')) {
@@ -77,7 +82,7 @@ final class CheckTrialExpiryCommand extends Command
                     continue;
                 }
 
-                $tenant = Tenant::find($sub->tenant_id);
+                $tenant = $tenants->get($sub->tenant_id);
                 if (! $tenant) {
                     Log::warning('saas.check_trial_expiry.tenant_missing', ['subscription_id' => $sub->id]);
                     continue;

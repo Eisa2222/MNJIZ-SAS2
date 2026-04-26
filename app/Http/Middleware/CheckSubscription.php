@@ -121,6 +121,12 @@ final class CheckSubscription
 
         // 6. Branch on status. Active + Trialing pass through; everything
         //    else routes the operator somewhere actionable.
+        //
+        // Phase H+ collaborative-audit fix: added `default` arm so a future
+        // SubscriptionStatus case added without updating this middleware
+        // can never produce an UnhandledMatchError (HTTP 500). The default
+        // falls back to the safest visible state — the upgrade page —
+        // because an unrecognised state is, by definition, not entitling.
         return match ($subscription->status) {
             SubscriptionStatus::Active, SubscriptionStatus::Trialing
                 => $next($request),
@@ -131,6 +137,9 @@ final class CheckSubscription
             SubscriptionStatus::Expired,
             SubscriptionStatus::Canceled,
             SubscriptionStatus::Paused
+                => $this->redirectToUpgrade($request, 'expired'),
+
+            default
                 => $this->redirectToUpgrade($request, 'expired'),
         };
     }

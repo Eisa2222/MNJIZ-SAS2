@@ -119,6 +119,20 @@ class Kernel extends ConsoleKernel
             ->dailyAt('08:00')
             ->withoutOverlapping()
             ->onOneServer();
+
+        /*
+        |--------------------------------------------------------------------------
+        | SaaS Auth Token Hygiene (Phase H+ collaborative-audit fix)
+        |--------------------------------------------------------------------------
+        | Sweeps `tenant_password_setup_tokens` rows older than 2× VALID_HOURS
+        | (96h grace) so the table doesn't grow unbounded for users who never
+        | clicked the welcome-mail setup link. The signed URL + 48h verify
+        | guard already make these rows functionally inert; this is pure GC.
+        */
+        $schedule->command('saas:prune-setup-tokens')
+            ->dailyAt('03:00')
+            ->withoutOverlapping()
+            ->onOneServer();
     }
 
 

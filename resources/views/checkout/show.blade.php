@@ -159,9 +159,24 @@
             $('#coupon-feedback').removeClass('ok bad').addClass(ok ? 'ok' : 'bad').text(msg);
         }
 
-        $('#coupon-apply-btn').on('click', function () {
-            var code = $.trim($('#coupon-code').val());
+        // Phase H+ collaborative-audit fix: disable button + show "Validating…"
+        // text during the AJAX call so the user can't double-submit and gets
+        // visible feedback. The button is restored in `complete` (always
+        // fires, success or error), preventing a permanent stuck state.
+        var $applyBtn   = $('#coupon-apply-btn');
+        var $codeInput  = $('#coupon-code');
+        var APPLY_LABEL = '{{ __('checkout.coupon.apply') }}';
+        var BUSY_LABEL  = '{{ __('checkout.coupon.applying') }}';
+
+        $applyBtn.on('click', function () {
+            // Re-entry guard: AJAX call already in flight.
+            if ($applyBtn.prop('disabled')) { return; }
+
+            var code = $.trim($codeInput.val());
             if (! code) { setFeedback('{{ __('checkout.coupon.code_required') }}', false); return; }
+
+            $applyBtn.prop('disabled', true).text(BUSY_LABEL);
+            $codeInput.prop('disabled', true);
 
             $.ajax({
                 url: routes.applyCoupon,
@@ -189,6 +204,10 @@
                 },
                 error: function () {
                     setFeedback('Error', false);
+                },
+                complete: function () {
+                    $applyBtn.prop('disabled', false).text(APPLY_LABEL);
+                    $codeInput.prop('disabled', false);
                 }
             });
         });

@@ -33,6 +33,7 @@ return [
         'cycle_mismatch' => 'This coupon does not apply to the (:cycle) cycle.',
         'min_amount'     => 'Minimum order amount is :amount :currency.',
         'applied'        => 'Coupon applied — :discount :currency off.',
+        'applying'       => 'Validating…',
     ],
     'pay'                => 'Pay now',
     'pay_methods'        => 'Accepted payment methods',

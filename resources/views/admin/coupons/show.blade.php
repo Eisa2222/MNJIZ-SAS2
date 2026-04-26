@@ -1,18 +1,18 @@
 @extends('admin.layout')
-@section('title', "Coupon: {$coupon->code}")
+@section('title', __('admin.coupons.title').": {$coupon->code}")
 
 @section('content')
     <div class="admin-header">
-        <h2>Coupon — <code>{{ $coupon->code }}</code></h2>
+        <h2>{{ __('admin.coupons.title') }} — <code>{{ $coupon->code }}</code></h2>
         <div>
-            <a class="btn" href="{{ route('admin.coupons.edit', $coupon) }}">Edit</a>
+            <a class="btn" href="{{ route('admin.coupons.edit', $coupon) }}">{{ __('admin.coupons.edit') }}</a>
             <form method="POST" action="{{ route('admin.coupons.toggle', $coupon) }}" style="display:inline;">
                 @csrf
                 <button class="btn" type="submit" style="background:{{ $coupon->is_active ? '#dc2626' : '#065f46' }};">
-                    {{ $coupon->is_active ? 'Disable' : 'Enable' }}
+                    {{ $coupon->is_active ? __('admin.coupons.disable') : __('admin.coupons.enable') }}
                 </button>
             </form>
-            <a class="btn" href="{{ route('admin.coupons.index') }}" style="background:#475569;">Back</a>
+            <a class="btn" href="{{ route('admin.coupons.index') }}" style="background:#475569;">{{ __('admin.coupons.back') }}</a>
         </div>
     </div>
 
@@ -23,25 +23,25 @@
         @if ($coupon->description)<p style="color:#94a3b8;">{{ $coupon->description }}</p>@endif
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:16px;">
-            <div class="stat"><div class="k">Type</div><div class="v" style="font-size:18px;">{{ $coupon->type->label() }}</div></div>
-            <div class="stat"><div class="k">Value</div><div class="v" style="font-size:18px;">
+            <div class="stat"><div class="k">{{ __('admin.coupons.fields.type') }}</div><div class="v" style="font-size:18px;">{{ $coupon->type->label() }}</div></div>
+            <div class="stat"><div class="k">{{ __('admin.coupons.fields.value') }}</div><div class="v" style="font-size:18px;">
                 {{ $coupon->type->value === 'percentage' ? $coupon->value.'%' : number_format((float) $coupon->value, 2).' '.$coupon->currency }}
             </div></div>
-            <div class="stat"><div class="k">Active</div><div class="v" style="font-size:18px;color:{{ $coupon->is_active ? '#10b981' : '#ef4444' }};">
-                {{ $coupon->is_active ? 'YES' : 'NO' }}
+            <div class="stat"><div class="k">{{ __('admin.coupons.fields.active') }}</div><div class="v" style="font-size:18px;color:{{ $coupon->is_active ? '#10b981' : '#ef4444' }};">
+                {{ $coupon->is_active ? __('admin.coupons.values.yes') : __('admin.coupons.values.no') }}
             </div></div>
-            <div class="stat"><div class="k">Redemptions</div><div class="v">
-                {{ $coupon->redemptions_count }}{{ $coupon->max_redemptions ? '/'.$coupon->max_redemptions : ' (unlimited)' }}
+            <div class="stat"><div class="k">{{ __('admin.coupons.fields.redemptions') }}</div><div class="v">
+                {{ $coupon->redemptions_count }}{{ $coupon->max_redemptions ? '/'.$coupon->max_redemptions : ' '.__('admin.coupons.values.unlimited') }}
             </div></div>
-            <div class="stat"><div class="k">Audit rows</div><div class="v">{{ $coupon->uses_count }}</div></div>
-            <div class="stat"><div class="k">Min amount</div><div class="v" style="font-size:18px;">
+            <div class="stat"><div class="k">{{ __('admin.coupons.fields.audit_rows') }}</div><div class="v">{{ $coupon->uses_count }}</div></div>
+            <div class="stat"><div class="k">{{ __('admin.coupons.fields.min_amount') }}</div><div class="v" style="font-size:18px;">
                 {{ $coupon->min_amount ? number_format((float) $coupon->min_amount, 2).' '.$coupon->currency : '—' }}
             </div></div>
-            <div class="stat"><div class="k">Expires</div><div class="v" style="font-size:18px;">
+            <div class="stat"><div class="k">{{ __('admin.coupons.fields.expires') }}</div><div class="v" style="font-size:18px;">
                 {{ $coupon->redeem_by?->format('Y-m-d') ?? '—' }}
             </div></div>
-            <div class="stat"><div class="k">Applies to</div><div class="v" style="font-size:18px;">
-                {{ $coupon->applies_to === 'specific_plans' ? 'Specific plans' : 'Any plan' }}
+            <div class="stat"><div class="k">{{ __('admin.coupons.fields.applies_to') }}</div><div class="v" style="font-size:18px;">
+                {{ $coupon->applies_to === 'specific_plans' ? __('admin.coupons.values.specific_plans') : __('admin.coupons.values.any_plan') }}
             </div></div>
         </div>
     </div>

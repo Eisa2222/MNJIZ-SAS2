@@ -71,8 +71,11 @@ Route::middleware('auth:admin')->group(function () {
         ->group(function () {
             Route::get('/',                [\App\Http\Controllers\Admin\SystemSettingController::class, 'index'])->name('index');
             Route::put('/',                [\App\Http\Controllers\Admin\SystemSettingController::class, 'update'])->name('update');
-            Route::post('/test-mail',      [\App\Http\Controllers\Admin\SystemSettingController::class, 'testMail'])->name('test-mail');
-            Route::post('/test-moyasar',   [\App\Http\Controllers\Admin\SystemSettingController::class, 'testMoyasar'])->name('test-moyasar');
+            // Phase H+ collaborative-audit fix: throttle test endpoints to
+            // 5 invocations per hour per super-admin so a compromised admin
+            // account can't be used to spam-mail or probe the gateway.
+            Route::post('/test-mail',      [\App\Http\Controllers\Admin\SystemSettingController::class, 'testMail'])->middleware('throttle:5,60')->name('test-mail');
+            Route::post('/test-moyasar',   [\App\Http\Controllers\Admin\SystemSettingController::class, 'testMoyasar'])->middleware('throttle:5,60')->name('test-moyasar');
 
             // Phase 3 single-key endpoint, retained for back-compat.
             Route::put('/legacy/{key}',    [CentralSettingController::class, 'update'])->name('legacy.update');

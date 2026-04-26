@@ -103,8 +103,13 @@ Route::middleware('auth')->group(function () {
 */
 Route::controller(\App\Http\Controllers\Auth\TenantPasswordSetupController::class)
     ->group(function () {
+        // Phase H+ collaborative-audit fix: add `throttle:10,5` (10 req per
+        // 5 min per IP) on top of the `signed` middleware. Defence-in-depth
+        // against distributed token brute-force — the 256-bit token entropy
+        // already makes guessing infeasible, but throttling closes the
+        // pre-cryptographic surface.
         Route::get('/password/setup/{token}', 'show')
-            ->middleware('signed')
+            ->middleware(['signed', 'throttle:10,5'])
             ->where('token', '[A-Fa-f0-9]{64}')
             ->name('tenant.password.setup');
 

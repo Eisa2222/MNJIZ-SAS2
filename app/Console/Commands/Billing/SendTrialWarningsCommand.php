@@ -71,6 +71,11 @@ final class SendTrialWarningsCommand extends Command
             $this->info("Milestone {$daysBefore} days → {$count} candidate subscriptions (target trial_ends_at date {$targetDate}).");
 
             $query->chunkById(100, function ($subs) use ($daysBefore, $sendMail, &$totalQueued, &$totalSkipped) {
+                // Phase H+ collaborative-audit fix: batch-load tenants for
+                // the chunk in ONE query (was N round-trips per chunk).
+                $tenantIds = $subs->pluck('tenant_id')->unique()->all();
+                $tenants   = Tenant::query()->whereIn('id', $tenantIds)->get()->keyBy('id');
+
                 foreach ($subs as $sub) {
                     /** @var Subscription $sub */
                     $sentDays = (array) ($sub->meta['trial_warning_days_sent'] ?? []);
@@ -85,7 +90,7 @@ final class SendTrialWarningsCommand extends Command
                         continue;
                     }
 
-                    $tenant = Tenant::find($sub->tenant_id);
+                    $tenant = $tenants->get($sub->tenant_id);
                     if (! $tenant) {
                         Log::warning('saas.send_trial_warnings.tenant_missing', ['subscription_id' => $sub->id]);
                         continue;

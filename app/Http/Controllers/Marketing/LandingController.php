@@ -57,7 +57,12 @@ final class LandingController extends Controller
      */
     private function sellablePlans()
     {
+        // Eager-load `features` so the pricing-grid `@foreach($plan->features)`
+        // iteration in landing.blade.php and pricing.blade.php doesn't fire
+        // a SELECT per plan (N+1). Catalogue is small today (~3-4 plans) but
+        // this is a free win and keeps growth-safe.
         return Plan::query()
+            ->with('features')
             ->where('is_active', true)
             ->where('is_free', false)
             ->orderBy('sort_order')

@@ -33,6 +33,7 @@ return [
         'cycle_mismatch' => 'هذا الكوبون لا ينطبق على الدورة (:cycle).',
         'min_amount'     => 'الحد الأدنى للطلب هو :amount :currency.',
         'applied'        => 'تم تطبيق الكوبون — خصم :discount :currency.',
+        'applying'       => 'جارٍ التحقق...',
     ],
     'pay'                => 'إتمام الدفع',
     'pay_methods'        => 'وسائل الدفع المقبولة',
