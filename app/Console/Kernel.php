@@ -95,6 +95,30 @@ class Kernel extends ConsoleKernel
             ->dailyAt('09:00')
             ->withoutOverlapping()
             ->onOneServer();
+
+        /*
+        |--------------------------------------------------------------------------
+        | SaaS Trial Lifecycle (Phase G)
+        |--------------------------------------------------------------------------
+        | Two daily commands keep trialing subscriptions in sync with the
+        | operator-facing trial settings (Phase C SystemSetting Trial tab).
+        |
+        |   00:00 — saas:check-trial-expiry     (runs BEFORE the Phase 5
+        |                                        00:10–00:20 billing window)
+        |   08:00 — saas:send-trial-warnings    (runs BEFORE renewals 09:00)
+        |
+        | Both are idempotent — see the command class doc-blocks for the
+        | per-row tracking columns + `meta.trial_warning_days_sent` array.
+        */
+        $schedule->command('saas:check-trial-expiry')
+            ->dailyAt('00:00')
+            ->withoutOverlapping()
+            ->onOneServer();
+
+        $schedule->command('saas:send-trial-warnings')
+            ->dailyAt('08:00')
+            ->withoutOverlapping()
+            ->onOneServer();
     }
 
 

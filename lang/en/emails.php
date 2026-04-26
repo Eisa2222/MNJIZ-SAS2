@@ -26,6 +26,25 @@ return [
         'security_notice'     => 'We will never ask for your password or a verification code via email or phone.',
     ],
 
+    // Phase G — trial lifecycle.
+    'trial_warning' => [
+        'subject'          => '[:app] Your trial ends in :days days',
+        'heading'          => 'Your trial ends soon',
+        'greeting'         => 'Hi :name,',
+        'body'             => 'Your free trial of the :plan plan ends in :days days — on :date. Subscribe now to keep working without interruption.',
+        'cta'              => 'Subscribe now',
+        'support_hint'     => 'Questions? Reach us at',
+    ],
+    'trial_expired' => [
+        'subject'          => '[:app] Your trial has ended',
+        'heading'          => 'Your trial has ended',
+        'greeting'         => 'Hi :name,',
+        'body_suspended'   => 'Your :firm trial has ended and the account has been suspended. Subscribe to a paid plan to restore full access.',
+        'body_active'      => 'Your :firm trial has ended. The account is still reachable but some features may be limited. Subscribe to restore full access.',
+        'cta'              => 'Subscribe now',
+        'support_hint'     => 'Questions? Reach us at',
+    ],
+
     'new_subscription' => [
         'subject'        => '[:app] New subscription',
         'greeting'       => 'Operator alert',

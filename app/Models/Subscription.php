@@ -40,6 +40,8 @@ class Subscription extends Model
         'gateway', 'gateway_subscription_id',
         'trial_ends_at', 'current_period_started_at', 'current_period_ends_at',
         'canceled_at', 'ends_at', 'grace_ends_at',
+        // Phase G — trial-lifecycle command bookkeeping.
+        'trial_warning_sent_at', 'trial_expired_notified_at',
         'meta',
     ];
 
@@ -53,6 +55,8 @@ class Subscription extends Model
         'canceled_at'               => 'datetime',
         'ends_at'                   => 'datetime',
         'grace_ends_at'             => 'datetime',
+        'trial_warning_sent_at'     => 'datetime',
+        'trial_expired_notified_at' => 'datetime',
         'meta'                      => 'array',
     ];
 
