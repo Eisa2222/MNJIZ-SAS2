@@ -146,6 +146,17 @@ class Kernel extends HttpKernel
         */
         'apply.system_settings'  => \App\Http\Middleware\ApplySystemSettings::class,
 
+        /*
+        | check.subscription   → Phase H. Gates tenant routes by subscription
+        |                         state: trialing/active pass through; expired/
+        |                         canceled/paused redirect to marketing.pricing;
+        |                         past_due redirects to tenant.billing.index;
+        |                         suspended renders tenant.suspended (HTTP 403).
+        |                         Exempts billing portal, checkout, password
+        |                         setup, auth, webhooks, health by route name.
+        */
+        'check.subscription'     => \App\Http\Middleware\CheckSubscription::class,
+
         'impersonating'     => \App\Http\Middleware\ImpersonationContext::class,
     ];
 
