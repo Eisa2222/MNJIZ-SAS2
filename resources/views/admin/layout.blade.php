@@ -33,25 +33,37 @@
 </head>
 <body>
 
-@auth('admin')
+{{-- Hotfix: detect which guard is logged in (admin OR super_admin from
+     Phase B parallel guards), then bind a single $adminUser variable so
+     the rest of this layout works with both. Also pick the right route
+     prefix (admin.* vs super-admin.*) based on URL so links go to the
+     same panel the user came in through. --}}
+@php
+    $adminUser = auth('admin')->user() ?? auth('super_admin')->user();
+    $routePrefix = request()->is('super-admin*') ? 'super-admin' : 'admin';
+@endphp
+
+@if ($adminUser)
 <div class="admin-shell">
     <aside class="admin-sidebar">
         <h1>MNJIZ SaaS</h1>
-        <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Dashboard</a>
-        <a href="{{ route('admin.tenants.index') }}" class="{{ request()->routeIs('admin.tenants.*') ? 'active' : '' }}">Tenants</a>
-        <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">Central Settings</a>
-        @if (auth('admin')->user()?->role === 'super_admin')
-            <a href="{{ route('admin.landing-features.index') }}" class="{{ request()->routeIs('admin.landing-features.*') ? 'active' : '' }}">Landing Features</a>
-            <a href="{{ route('admin.landing-faqs.index') }}" class="{{ request()->routeIs('admin.landing-faqs.*') ? 'active' : '' }}">Landing FAQs</a>
+        <a href="{{ route($routePrefix.'.dashboard') }}" class="{{ request()->routeIs($routePrefix.'.dashboard') ? 'active' : '' }}">Dashboard</a>
+        <a href="{{ route($routePrefix.'.tenants.index') }}" class="{{ request()->routeIs($routePrefix.'.tenants.*') ? 'active' : '' }}">Tenants</a>
+        <a href="{{ route($routePrefix.'.settings.index') }}" class="{{ request()->routeIs($routePrefix.'.settings.*') ? 'active' : '' }}">Central Settings</a>
+        <a href="{{ route($routePrefix.'.subscriptions.index') }}" class="{{ request()->routeIs($routePrefix.'.subscriptions.*') ? 'active' : '' }}">Subscriptions</a>
+        <a href="{{ route($routePrefix.'.coupons.index') }}" class="{{ request()->routeIs($routePrefix.'.coupons.*') ? 'active' : '' }}">Coupons</a>
+        @if ($adminUser->role === 'super_admin')
+            <a href="{{ route($routePrefix.'.landing-features.index') }}" class="{{ request()->routeIs($routePrefix.'.landing-features.*') ? 'active' : '' }}">Landing Features</a>
+            <a href="{{ route($routePrefix.'.landing-faqs.index') }}" class="{{ request()->routeIs($routePrefix.'.landing-faqs.*') ? 'active' : '' }}">Landing FAQs</a>
         @endif
-        <form method="POST" action="{{ route('admin.logout') }}" style="margin-top:24px;">
+        <form method="POST" action="{{ route($routePrefix.'.logout') }}" style="margin-top:24px;">
             @csrf
             <button type="submit" class="btn btn-danger" style="width:100%;">Log out</button>
         </form>
         <p style="color:#64748b;font-size:12px;margin-top:24px;">
             Signed in as<br>
-            <strong>{{ auth('admin')->user()->name }}</strong><br>
-            <em>{{ auth('admin')->user()->role }}</em>
+            <strong>{{ $adminUser->name }}</strong><br>
+            <em>{{ $adminUser->role }}</em>
         </p>
     </aside>
 
@@ -64,7 +76,7 @@
 </div>
 @else
     @yield('content')
-@endauth
+@endif
 
 </body>
 </html>
