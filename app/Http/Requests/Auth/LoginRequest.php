@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\Tenant;
+use App\Models\User;
+use App\Tenancy\TenantContext;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -44,6 +47,39 @@ class LoginRequest extends FormRequest
         // تحديد الحقل الذي سيتم استخدامه: email أو phone
         $credentials = filter_var($this->input('email'), FILTER_VALIDATE_EMAIL) ? ['email' => $this->input('email')] : ['phone' => $this->input('email')];
         $credentials['password'] = $this->input('password');
+
+        // ─── Hotfix: Tenant-Aware Login ───────────────────────────────
+        // Root cause: User uses BelongsToTenant global scope. The default
+        // `Auth::attempt()` queries via Eloquent → scope filters by the
+        // CURRENT tenant context (which is whatever the URL resolver
+        // picked, typically the default tenant). For users in other
+        // tenants the query returns no rows → login fails.
+        //
+        // Fix: bypass the scope ONLY for the email/phone lookup (no
+        // password disclosure here — we don't return the user, just
+        // its tenant), set the correct tenant context, then run the
+        // canonical Auth::attempt() — which now sees the user under
+        // the right scope and validates the password the standard way.
+        //
+        // Security: `users.email` is globally unique (migration
+        // constraint), so the lookup is single-row and doesn't leak
+        // anything an attacker couldn't already enumerate via the
+        // existing /forgot-password endpoint.
+        $lookup = User::query()->withoutGlobalScopes();
+        if (filter_var($this->input('email'), FILTER_VALIDATE_EMAIL)) {
+            $lookup->where('email', $this->input('email'));
+        } else {
+            $lookup->where('phone', $this->input('email'));
+        }
+        $candidate = $lookup->first();
+
+        if ($candidate && $candidate->tenant_id) {
+            $tenant = Tenant::find($candidate->tenant_id);
+            if ($tenant) {
+                TenantContext::set($tenant);
+            }
+        }
+        // ──────────────────────────────────────────────────────────────
 
         // التحقق من محاولة تسجيل الدخول
         if (!Auth::attempt($credentials, $this->boolean('remember'))) {

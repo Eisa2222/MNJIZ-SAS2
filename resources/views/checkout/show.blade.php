@@ -82,6 +82,18 @@
                     @if ($sandbox)
                         <p class="text-muted small mb-3">⚠️ {{ __('checkout.sandbox_notice') }}</p>
                     @endif
+
+                    {{-- Hotfix: explicit warning when the publishable key isn't
+                         configured yet. Without this the customer sees only
+                         the empty Moyasar mount point and assumes the page
+                         is broken. The Pay flow can't initialise without
+                         the key — Moyasar.js needs it client-side. --}}
+                    @if (empty($publishable_key))
+                        <div class="alert alert-warning" role="alert" style="border-radius:8px;background:#fef3c7;color:#92400e;padding:12px 16px;border:1px solid #fcd34d;">
+                            <strong>⚠</strong> {{ __('checkout.gateway_not_configured') }}
+                        </div>
+                    @endif
+
                     <div id="moyasar-placeholder"
                          data-publishable-key="{{ $publishable_key }}"
                          data-amount="{{ $amount }}"

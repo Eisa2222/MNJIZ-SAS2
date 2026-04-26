@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tenant;
+use App\Models\User;
+use App\Tenancy\TenantContext;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
@@ -41,6 +44,23 @@ class NewPasswordController extends Controller
             return $this->redirectToPasswordRequest('انتهت صلاحية رابط استعادة كلمة المرور. يرجى طلب رابط جديد لاستعادة كلمة المرور');
         }
 
+        // ─── Hotfix: Tenant-Aware Password Reset (apply step) ─────────
+        // Same root-cause as login + sendResetLink: Password::reset()
+        // resolves the user via Eloquent under BelongsToTenant scope.
+        // Without setting tenant context first, `$user` resolves to null
+        // and the broker returns INVALID_USER even though the token is
+        // valid. Bind the right tenant before the broker query.
+        $candidate = User::query()->withoutGlobalScopes()
+            ->where('email', $request->input('email'))
+            ->first();
+
+        if ($candidate && $candidate->tenant_id) {
+            $tenant = Tenant::find($candidate->tenant_id);
+            if ($tenant) {
+                TenantContext::set($tenant);
+            }
+        }
+        // ──────────────────────────────────────────────────────────────
 
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the

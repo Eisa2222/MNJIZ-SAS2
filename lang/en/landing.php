@@ -36,6 +36,8 @@ return [
     'pricing' => [
         'title'             => 'Transparent pricing, no surprises',
         'lead'              => 'Every plan includes a free trial. Annual billing saves you two months.',
+        'empty_state'       => 'Plans are being configured. Please check back later or ',
+        'empty_state_link'  => 'contact support',
         'most_popular'      => 'Most popular',
         'per_month'         => '/ month',
         'yearly'            => 'Annual',

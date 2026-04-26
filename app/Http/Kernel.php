@@ -44,6 +44,12 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\MustChangePassword::class,
             // Shares impersonation state to all views (no-op when not impersonating).
             \App\Http\Middleware\ImpersonationContext::class,
+            // Hotfix: re-binds TenantContext to the authenticated user's
+            // tenant for path-less routes (/employees/*, /dashboard, etc).
+            // No-op for /t/{slug}/* (URL-authoritative), admin guards, or
+            // unauthenticated requests. See class doc-block for the full
+            // root-cause + safety analysis.
+            \App\Http\Middleware\ResolveTenantFromAuthenticatedUser::class,
         ],
 
         'api' => [

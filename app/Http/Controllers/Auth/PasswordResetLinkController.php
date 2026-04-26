@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tenant;
+use App\Models\User;
+use App\Tenancy\TenantContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -28,6 +31,29 @@ class PasswordResetLinkController extends Controller
         $request->validate([
             'email' => ['required', 'email'],
         ]);
+
+        // ─── Hotfix: Tenant-Aware Password Reset ──────────────────────
+        // Same root cause as login: `Password::sendResetLink()` resolves
+        // the user via Eloquent under `BelongsToTenant` global scope, so
+        // any user not in the URL-resolved (default) tenant is invisible
+        // and gets a generic "user not found" response.
+        //
+        // Fix: look up the user without scopes, set the right tenant
+        // context, then call sendResetLink — which now sees the user.
+        // No password disclosure here; we only use the lookup to bind
+        // the correct tenant. The reset email + token still flow through
+        // Laravel's standard PasswordBroker.
+        $candidate = User::query()->withoutGlobalScopes()
+            ->where('email', $request->input('email'))
+            ->first();
+
+        if ($candidate && $candidate->tenant_id) {
+            $tenant = Tenant::find($candidate->tenant_id);
+            if ($tenant) {
+                TenantContext::set($tenant);
+            }
+        }
+        // ──────────────────────────────────────────────────────────────
 
         // We will send the password reset link to this user. Once we have attempted
         // to send the link, we will examine the response then see the message we

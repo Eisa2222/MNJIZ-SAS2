@@ -38,6 +38,7 @@ return [
     'pay'                => 'Pay now',
     'pay_methods'        => 'Accepted payment methods',
     'sandbox_notice'     => 'This is a sandbox account — no real charge will occur.',
+    'gateway_not_configured' => 'Payment gateway is not configured yet. Please contact support to complete your subscription.',
     'success' => [
         'title'   => 'Payment successful',
         'thanks'  => 'Thank you for subscribing to :app.',

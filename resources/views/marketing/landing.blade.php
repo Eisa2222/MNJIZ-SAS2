@@ -126,7 +126,7 @@
         <h2>{{ __('landing.pricing.title') }}</h2>
         <p class="lead">{{ __('landing.pricing.lead') }}</p>
         <div class="pricing-grid">
-            @foreach($plans as $plan)
+            @forelse($plans as $plan)
                 <div class="plan {{ $plan->is_featured ? 'featured' : '' }}">
                     <h3>{{ $plan->name }}</h3>
                     <div class="desc">{{ $plan->description }}</div>
@@ -141,7 +141,16 @@
                         {{ __('checkout.cta_on_pricing') }}
                     </a>
                 </div>
-            @endforeach
+            @empty
+                {{-- Hotfix: graceful empty-state when DefaultPlansSeeder hasn't run.
+                     Stops the customer landing on a blank "Pricing" header section. --}}
+                <div style="grid-column:1/-1;text-align:center;padding:48px 24px;background:#fff;border-radius:12px;color:#4a5568;border:2px dashed #e2e8f0;">
+                    <p style="margin:0;font-size:15px;">
+                        {{ __('landing.pricing.empty_state') }}
+                        <a href="mailto:{{ $footer['support_email'] ?? 'support@mnjiz.sa' }}" style="color:#0f4c75;font-weight:600;">{{ __('landing.pricing.empty_state_link') }}</a>.
+                    </p>
+                </div>
+            @endforelse
         </div>
     </div>
 </section>
